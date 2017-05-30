@@ -1,8 +1,9 @@
 %connects to an arduino and reads all 6 analog inputs, displaying it and
 %writing it to a file
 clear a;
-a = arduino('/dev/cu.usbmodem1421','uno');  %port number hard-coded to Yuni's laptop
-fileName = [mfilename('fullpath') '_' datestr(datetime('now')) '.csv']; %name of file to write sensor data to
+a = arduino('/dev/cu.usbmodem1411','uno');  %port number hard-coded to Yuni's laptop
+fileName = [pwd '/output_files/' datestr(datetime('now')) '.csv']; %name of file to write sensor data to
+
 
 vals = zeros(1,6);    %array of values to append to file
 
