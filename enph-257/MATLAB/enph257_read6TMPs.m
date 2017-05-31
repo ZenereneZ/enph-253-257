@@ -6,13 +6,12 @@ fileName = [pwd '/output_files/' datestr(datetime('now')) '.csv']; %name of file
 
 
 vals = zeros(1,6);    %array of values to append to file
-offset = [0.25347 0.32677 0.24857 0.24367 0.18997 0.24367];
 
 while true
     tic;
     for i = 1:6                             %iterate through each analog pin
         pin = strcat('A', int2str(i - 1));    %name of the pin to read from
-        vals(i) = readVoltage(a, pin) - offset(i);
+        vals(i) = readVoltage(a, pin);
     end
     disp(vals); %write value to command line output
     dlmwrite(fileName, vals, '-append'); %append to csv file
