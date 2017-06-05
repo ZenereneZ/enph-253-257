@@ -1,9 +1,13 @@
 %connects to an arduino and reads all 6 analog inputs, displaying it and
 %writing it to a file
 clear a;
-a = arduino('/dev/cu.usbmodem1411','uno');  %port number hard-coded to Yuni's laptop
-fileName = [pwd '/output_files/' datestr(datetime('now')) '.csv']; %name of file to write sensor data to
+a = arduino();  %port number hard-coded to Yuni's laptop
 
+dateTime = datestr(datetime('now'));
+dateTime = strrep(dateTime,':','-');
+dateTime = strrep(dateTime,' ','_');
+fileName = [pwd '/output_files/' dateTime '.csv']; %use this for windows
+%fileName = [pwd '\output_files\' dateTime '.csv']; %use this mac
 
 vals = zeros(1,6);    %array of values to append to file
 
