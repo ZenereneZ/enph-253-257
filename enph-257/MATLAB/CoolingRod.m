@@ -32,7 +32,7 @@ for i = 0:66379
     for j = 2:29
         dT_n = (k/(c*roh))*dt*(T_n(j-1)-2*T_n(j)+T_n(j+1))/dx^2;
         dT_radiative = - (2/(c*roh*a))*dt*(kc*(T_n(j)-Tamb)+epsilon*sigma*(((T_n(j)+273.15)^4)-(Tamb+273.15)^4));
-        T_n(j) = (dT_n + dT_radiative);
+        T_n(j) = T_n(j) + (dT_n + dT_radiative);
     end
     if (mod(i, 10) == 0)
         time = i/10 + 1;
@@ -45,5 +45,7 @@ for i = 0:66379
     end
 end
 for i = 1:6
+    hold on
     plot(t, simSensors(:, i));
+    hold off
 end
