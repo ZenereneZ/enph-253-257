@@ -8,7 +8,7 @@ Created on Fri Jun  2 13:16:43 2017
 sensors = [[] for i in arange(6)]
 
 import csv
-with open('31-May-2017 13-40-33.csv', 'r') as file:
+with open('june5_1-41.csv', 'r') as file:
     dataReader = csv.reader(file, delimiter = ',')
     #stores data in a list of 6 lists(one for each sensor)
     for row in dataReader:
@@ -18,15 +18,17 @@ with open('31-May-2017 13-40-33.csv', 'r') as file:
             j += 1
 file.close()
 
-t = linspace(1, len(sensor1), num = len(sensor1))
+t = linspace(1, len(sensors[0]), num = len(sensors[0]))
 
 subplot(2,1,1)
 for i in arange(6):
     plot(t, sensors[i])
+    plt.xlim([0, 3000])
 title('Raw Voltage vs. Time')
 
 subplot(2,1,2)
 for i in arange(6):
     plot(t, [j*100/7.67 for j in sensors[i]])
+    plt.xlim([0, 3000])
 title('Temperature vs. Time')
 
