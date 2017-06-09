@@ -4,19 +4,22 @@ Created on Thu May 25 10:53:13 2017
 
 @author: forsu
 """
+import matplotlib.pyplot as plt
+
 dt = 0.1
 simSensors = [[] for i in arange(6)]
-k = 205
+k = 230
 L = 0.3
 a = 0.01
 c = 900
 roh = 2700
 dx = 0.01 
-P = 10
-kc = 7.5 
+P = 9.5
+kc = 11 
 Tamb = 20
 sigma = 5.67*10**(-8)
 epsilon = 1
+colors = ['y','m','c','r','g','b']
 
 x_left = linspace(0, 2.9, 30)
 x_n = linspace(0.005, 0.295, 30)
@@ -29,7 +32,7 @@ for i in arange(3000/dt):
     if (int(i/(300/dt)) % 2 == 1):
         P = 0
     else:
-        P = 10
+        P = 9.5
     
     dT_nfirst = -k*(T_n[0] - T_n[1])*dt/(c*roh*dx**2)
     dT_nlast = k*(T_n[-2] - T_n[-1])*dt/(c*roh*dx**2)
@@ -55,5 +58,25 @@ for i in arange(3000/dt):
 figure()
 t = arange(1, 3001)
 for i in arange(6):
-    plot(t, simSensors[i])
+    plt.scatter(t, simSensors[i], c = colors[i], marker = 'x', linewidths = 0.01)
     plt.xlim([0, 3000])
+    
+sensors = [[] for i in arange(6)]
+
+import csv
+with open('june5_1-41.csv', 'r') as file:
+    dataReader = csv.reader(file, delimiter = ',')
+    #stores data in a list of 6 lists(one for each sensor)
+    for row in dataReader:
+        j = 0
+        for i in arange(6):
+            sensors[j].append(float(row[i]))
+            j += 1
+file.close()
+
+t = arange(1, len(sensors[0]) + 1)
+
+for i in arange(6):
+    plot(t, [j*100/7.67 for j in sensors[i]])
+plt.xlim([0, 3000])
+title('Temperature vs. Time')
