@@ -118,5 +118,6 @@ def main():
     for i in arange(6):
         plt.scatter(t, [j*100/7.67 for j in sensors[i]], c = colors[i], marker = 'x', linewidths = 0.5)
     plt.ylim([20, 60])
+    
 if __name__ == "__main__":
     main()
