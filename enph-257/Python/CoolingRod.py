@@ -15,7 +15,7 @@ Tamb = 20
 sigma = 5.67*10**(-8)
 epsilon = 1
 colors = ['y','m','c','r','g','b']
-CToK = 273
+CToK = 273.15
 
 T_n = np.full((30), 27.5)
 def run_sim():
@@ -24,7 +24,6 @@ def run_sim():
             P = 0
         else:
             P = 9.5
-
         T_n[0] += delta_temp_first(T_n[0], T_n[1])
         T_n[-1] += delta_temp_last(T_n[-2], T_n[-1])
         for j in range(1, 29):
@@ -66,14 +65,14 @@ def delta_temp_middle_conductive(t0, t1, t2):
 
 ### LAST NODE ###
 def delta_temp_last(t99, t100):
-    convective = delta_temp_first_convective(t100)
-    conductive = delta_temp_first_conductive(t99, t100)
+    convective = delta_temp_last_convective(t100)
+    conductive = delta_temp_last_conductive(t99, t100)
     radiative = delta_temp_radiative(t100)
     return convective + conductive + radiative
-def delta_temp_first_convective(t100):
+def delta_temp_last_convective(t100):
     return -2*kc*(t100 - Tamb)*dt/(c*roh*a)
-def delta_temp_first_conductive(t99, t100):
-    return -k*(t99 - t100)*dt/(c*roh*dx**2)
+def delta_temp_last_conductive(t99, t100):
+    return k*(t99 - t100)*dt/(c*roh*dx**2)
 
 
 '''
@@ -102,7 +101,6 @@ def main():
     t = range(1, 3001)
     for i in range(6):
         plt.scatter(t, simSensors[i], c = colors[i], marker = 'x', linewidths = 0.01)
-    print(simSensors[0])
     plt.xlim([0, 3000])
     plt.ylim([0, 100])
     plt.title('Temperature vs. Time')
