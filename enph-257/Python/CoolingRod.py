@@ -19,6 +19,7 @@ CToK = 273.15
 
 T_n = np.full((30), 27.5)
 def run_sim():
+    global P
     for i in np.arange(3000/dt):
         if (int(i/(300/dt)) % 2 == 1):
             P = 0
