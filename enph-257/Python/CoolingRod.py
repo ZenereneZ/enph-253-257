@@ -21,7 +21,7 @@ Tamb = 24 # ambient temperature (C)
 sigma = 5.67*10**(-8) # stefan-boltzmann constant (W/(m^2 * k**4))
 CToK = 273.15 # conversion from Celcius to Kelvin
 seconds_of_simulation = 3000 # 50 minutes
-colors = ['y','m','c','r','g','b']
+colors = ['b','g','r','c','m','y']
 
 
 ### DEPENDANT VARIABLES
@@ -34,7 +34,7 @@ def run_sim():
     global P
     power = P * efficiency
     for i in np.arange(numSteps):
-        if (int(i/(numSteps)) % 2 == 1):
+        if (int(i/(numSteps/10)) % 2 == 1):
             power = 0
         else:
             power = P * efficiency
@@ -89,37 +89,34 @@ def delta_temp_last_conductive(t99, t100):
     return k*(t99 - t100)*dt/(c*roh*dx**2)
 
 
-'''
-sensors = [[] for i in np.arange(6)]
-
-import csv
-with open('june5_1-41.csv', 'r') as file:
-    dataReader = csv.reader(file, delimiter = ',')
-    #stores data in a list of 6 lists(one for each sensor)
-    for row in dataReader:
-        j = 0
-        for i in arange(6):
-            sensors[j].append(float(row[i]))
-            j += 1
-file.close()
-
-t = arange(1, len(sensors[0]) + 1)
-
-for i in arange(6):
-    plot(t, [j*100/7.67 for j in sensors[i]])
-'''
-
 def main():
     run_sim()
     plt.figure()
     t = range(1, seconds_of_simulation + 1)
     for i in range(6):
-        plt.scatter(t, simSensors[:, i], c = colors[i], marker = 'x', linewidths = 0.01)
+        plot(t, simSensors[:, i])
     plt.xlim([0, seconds_of_simulation])
     plt.ylim([0, 100])
     plt.title('Temperature vs. Time')
     plt.show()
 
+    sensors = [[] for i in np.arange(6)]
+    
+    import csv
+    with open('C:\\Users\\forsu\\Documents\\ENPH257(Thermo)\\june5_1-41.csv', 'r') as file:
+        dataReader = csv.reader(file, delimiter = ',')
+        #stores data in a list of 6 lists(one for each sensor)
+        for row in dataReader:
+            j = 0
+            for i in arange(6):
+                sensors[j].append(float(row[i]))
+                j += 1
+        file.close()
+    
+    t = arange(1, len(sensors[0]) + 1)
 
+    for i in arange(6):
+        plt.scatter(t, [j*100/7.67 for j in sensors[i]], c = colors[i], marker = 'x', linewidths = 0.5)
+    plt.ylim([20, 60])
 if __name__ == "__main__":
     main()
