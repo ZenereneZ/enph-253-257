@@ -1,67 +1,83 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May 25 10:53:13 2017
-
-@author: forsu
-"""
+import numpy as np
 import matplotlib.pyplot as plt
 
 dt = 0.1
-simSensors = [[] for i in arange(6)]
+simSensors = [[] for i in np.arange(6)]
 k = 230
 L = 0.3
 a = 0.01
 c = 900
 roh = 2700
-dx = 0.01 
+dx = 0.01
 P = 9.5
-kc = 11 
+kc = 11
 Tamb = 20
 sigma = 5.67*10**(-8)
 epsilon = 1
 colors = ['y','m','c','r','g','b']
+CToK = 273
 
-x_left = linspace(0, 2.9, 30)
-x_n = linspace(0.005, 0.295, 30)
-T_n = linspace(0, 2.9, 30)
+T_n = np.full((30), 27.5)
+def run_sim():
+    for i in np.arange(3000/dt):
+        if (int(i/(300/dt)) % 2 == 1):
+            P = 0
+        else:
+            P = 9.5
 
-for i in arange(30):
-    T_n[i] = 27.5
+        T_n[0] += delta_temp_first(T_n[0], T_n[1])
+        T_n[-1] += delta_temp_last(T_n[-2], T_n[-1])
+        for j in range(1, 29):
+            T_n[j] += delta_temp_middle(T_n[j-1], T_n[j], T_n[j+1])
 
-for i in arange(3000/dt):
-    if (int(i/(300/dt)) % 2 == 1):
-        P = 0
-    else:
-        P = 9.5
-    
-    dT_nfirst = -k*(T_n[0] - T_n[1])*dt/(c*roh*dx**2)
-    dT_nlast = k*(T_n[-2] - T_n[-1])*dt/(c*roh*dx**2)
-    dT_convectivefirst = -2*kc*(T_n[0] - Tamb)*dt/(c*roh*a)
-    dT_convectivelast = -2*kc*(T_n[-1] - Tamb)*dt/(c*roh*a)
-    
-    T_n[0] += (dT_nfirst + dT_convectivefirst + P*dt/(c*roh*pi*(a**2)*dx))
-    T_n[-1] += (dT_nlast + dT_convectivelast)
-    
-    for j in arange(1, 29):
-        dT_n = (k/(c*roh))*dt*(T_n[j-1]-2*T_n[j]+T_n[j+1])/(dx**2)
-        dT_radiative = - (2/(c*roh*a))*dt*(kc*(T_n[j]-Tamb)+epsilon*sigma*((T_n[j]+273.15)**4-(Tamb+273.15)**4))
-        T_n[j] += (dT_n + dT_radiative)
-    
-    if (i % (1/dt) == 0):
-        simSensors[0].append(T_n[1])
-        simSensors[1].append((T_n[6]+T_n[7])/2)
-        simSensors[2].append(T_n[12])
-        simSensors[3].append((T_n[17]+T_n[18])/2)
-        simSensors[4].append(T_n[23])
-        simSensors[5].append((T_n[28]+T_n[29])/2)
+        if (i % (1/dt) == 0):
+            simSensors[0].append(T_n[1])
+            simSensors[1].append((T_n[6]+T_n[7])/2)
+            simSensors[2].append(T_n[12])
+            simSensors[3].append((T_n[17]+T_n[18])/2)
+            simSensors[4].append(T_n[23])
+            simSensors[5].append((T_n[28]+T_n[29])/2)
 
-figure()
-t = arange(1, 3001)
-for i in arange(6):
-    plt.scatter(t, simSensors[i], c = colors[i], marker = 'x', linewidths = 0.01)
-    plt.xlim([0, 3000])
-    
-sensors = [[] for i in arange(6)]
+### Common radiation ###
+def delta_temp_radiative(t):
+    return -(2/(c*roh*a))*dt*(kc*(t-Tamb)+epsilon*sigma*((t+CToK)**4-(Tamb+CToK)**4))
+
+### FIRST NODE ###
+def delta_temp_first(t0, t1):
+    convective = delta_temp_first_convective(t0)
+    conductive = delta_temp_first_conductive(t0, t1)
+    power_in = delta_temp_first_power()
+    radiative = delta_temp_radiative(t0)
+    return convective + conductive + power_in# + radiative
+def delta_temp_first_convective(t0):
+    return -2*kc*(t0 - Tamb)*dt/(c*roh*a)
+def delta_temp_first_conductive(t0, t1):
+    return -k*(t0 - t1)*dt/(c*roh*dx**2)
+def delta_temp_first_power():
+    return P*dt/(c*roh*np.pi*(a**2)*dx)
+
+### MIDDLE NODES ###
+def delta_temp_middle(t0, t1, t2):
+    conductive = delta_temp_middle_conductive(t0, t1, t2)
+    radiative = delta_temp_radiative(t1)
+    return conductive + radiative
+def delta_temp_middle_conductive(t0, t1, t2):
+    return (k/(c*roh))*dt*(t0-2*t1+t2)/(dx**2)
+
+### LAST NODE ###
+def delta_temp_last(t99, t100):
+    convective = delta_temp_first_convective(t100)
+    conductive = delta_temp_first_conductive(t99, t100)
+    radiative = delta_temp_radiative(t100)
+    return convective + conductive + radiative
+def delta_temp_first_convective(t100):
+    return -2*kc*(t100 - Tamb)*dt/(c*roh*a)
+def delta_temp_first_conductive(t99, t100):
+    return -k*(t99 - t100)*dt/(c*roh*dx**2)
+
+
+'''
+sensors = [[] for i in np.arange(6)]
 
 import csv
 with open('june5_1-41.csv', 'r') as file:
@@ -78,5 +94,20 @@ t = arange(1, len(sensors[0]) + 1)
 
 for i in arange(6):
     plot(t, [j*100/7.67 for j in sensors[i]])
-plt.xlim([0, 3000])
-title('Temperature vs. Time')
+'''
+
+def main():
+    run_sim()
+    plt.figure()
+    t = range(1, 3001)
+    for i in range(6):
+        plt.scatter(t, simSensors[i], c = colors[i], marker = 'x', linewidths = 0.01)
+    print(simSensors[0])
+    plt.xlim([0, 3000])
+    plt.ylim([0, 100])
+    plt.title('Temperature vs. Time')
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()
