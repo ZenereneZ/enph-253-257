@@ -116,8 +116,6 @@ def main():
             for i in range(6):
                 actual_sensors[i].append(float(row[i]))
 
-
-
     actual_sensors[0] = np.add(np.multiply(actual_sensors[0], 12.99), 0.1225)
     actual_sensors[1] = np.add(np.multiply(actual_sensors[1], 12.434), 1.974)
     actual_sensors[2] = np.add(np.multiply(actual_sensors[2], 13), 0.3263)

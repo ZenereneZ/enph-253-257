@@ -22,7 +22,7 @@ while true
     disp(vals); %write value to command line output
     plotMat = [plotMat ; vals]; %append readings
     plot(plotMat);
-    legend('A0','A1','A2','A3','A4','A5');
+    legend('A0','A1','A2','A3','A4','A5', 'Location', 'southwest');
     
     %if less than 1 second has elapsed, wait 1 second
     %if more than 1 second has elapsed, just move on
