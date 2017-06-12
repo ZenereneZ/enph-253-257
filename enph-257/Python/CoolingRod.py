@@ -101,7 +101,7 @@ def main():
     plt.show()
 
     sensors = [[] for i in np.arange(6)]
-    
+
     import csv
     with open('C:\\Users\\forsu\\Documents\\ENPH257(Thermo)\\june5_1-41.csv', 'r') as file:
         dataReader = csv.reader(file, delimiter = ',')
@@ -112,12 +112,12 @@ def main():
                 sensors[j].append(float(row[i]))
                 j += 1
         file.close()
-    
+
     t = arange(1, len(sensors[0]) + 1)
 
     for i in arange(6):
         plt.scatter(t, [j*100/7.67 for j in sensors[i]], c = colors[i], marker = 'x', linewidths = 0.5)
     plt.ylim([20, 60])
-    
+
 if __name__ == "__main__":
     main()
