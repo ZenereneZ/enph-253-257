@@ -3,17 +3,17 @@ import matplotlib.pyplot as plt
 import csv
 
 ### STUFF WE CAN CHANGE ###
-epsilon = 1 # emissivity (0-1)
-kc = 10 # conduction constant
+epsilon = 0.3 # emissivity (0-1)
+kc = 16 # conduction constant
 efficiency = 0.9 # efficiency of power (0-1)
-c = 1700 # specific heat capacity
+c = 900 # specific heat capacity
 Tamb = 24 # ambient temperature (C)
-k = 240 # thermal conductivity (W/(m*k))
+k = 220 # thermal conductivity (W/(m*k))
 
 ### DO NOT CHANGE ###
 dt = 0.1 # delta time (s)
 L = 0.305 # length of rod (m)
-a = 0.01 # radius (m)
+a = 0.0118 # radius (m)
 rho = 2700 # density (kg/m^3)
 dx = 0.01 # delta x (m)
 P = 9.5 # max power (W)
@@ -104,9 +104,9 @@ def main():
         #plt.plot(t, simSensors[:, i])
         plt.plot(t, simSensors[i])
     plt.xlim([0, seconds_of_simulation])
-    plt.ylim([20, 60])
-    plt.title('Temperature vs. Time')
-
+    plt.ylim([20, 50])
+    plt.xlabel("Time (s)")
+    plt.ylabel("Temperature (C)")
 
     actual_sensors = [[] for i in range(6)]
     with open('../MATLAB/output_files/june5_1-41.csv', 'r') as file:
@@ -118,12 +118,12 @@ def main():
 
 
 
-    actual_sensors[0] = np.add(np.multiply(actual_sensors[0], 12.35), 2.138)
-    actual_sensors[1] = np.add(np.multiply(actual_sensors[1], 12.566), 1.5609)
-    actual_sensors[2] = np.add(np.multiply(actual_sensors[2], 11.4814), 2.38055)
-    actual_sensors[3] = np.add(np.multiply(actual_sensors[3], 11.9304), 2.82118)
-    actual_sensors[4] = np.add(np.multiply(actual_sensors[4], 12.06), 2.888)
-    actual_sensors[5] = np.add(np.multiply(actual_sensors[5], 11.94229), 2.8868)
+    actual_sensors[0] = np.add(np.multiply(actual_sensors[0], 12.99), 0.1225)
+    actual_sensors[1] = np.add(np.multiply(actual_sensors[1], 12.434), 1.974)
+    actual_sensors[2] = np.add(np.multiply(actual_sensors[2], 13), 0.3263)
+    actual_sensors[3] = np.add(np.multiply(actual_sensors[3], 12.02), 1.981)
+    actual_sensors[4] = np.add(np.multiply(actual_sensors[4], 12.62), 1.1282)
+    actual_sensors[5] = np.add(np.multiply(actual_sensors[5], 11.95), 2.5395)
 
     for i in range(6):
         factor = 50
