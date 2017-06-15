@@ -41,7 +41,7 @@ void menu() {
   LCD.clear();
   LCD.home();
   LCD.println("Menu");
-  delay(300);           //make sure LCD display is readable, and give time to let user release stopbutton
+  delay(500);           //make sure LCD display is readable, and give time to let user release stopbutton
   
   int knob6 = (int)(knob(6)/1024.0*6);    //sort analog voltages into 6 different menu items
   switch(knob6) {
@@ -76,7 +76,7 @@ void menu() {
       LCD.print(speed);
       break;
   }
-  delay(300);
+  delay(500);
   
   //recursively call menu() unless startbutton is pressed
   if (startbutton()) {
