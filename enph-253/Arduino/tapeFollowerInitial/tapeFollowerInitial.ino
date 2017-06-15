@@ -1,7 +1,7 @@
 /*
  * Written for the June 15th tape follower lab. 
  * Splits basic operation into menu mode and run mode, so that the board doesn't have excessive function calls (sensor reads) during the actual control loop
- * Pressing startbutton makes tinah go to run mode, and pressing stopbutton makes tinah go to menu mode. In menu mode, the control parameters can be adjusted
+ * Pressing startbutton makes tinah go to run mode, and pressing stopbutton makes tinah go to menu mode. The control parameters can be adjusted in menu mode
  */
 
 #include <phys253.h>          
@@ -14,16 +14,17 @@
 #define M_R 1
 
 //parameters for control, configurable from menu during operation. The values assigned below are arbitrary initial values
-int qrdThresh = 100;  //threshold qrd output value for deciding whether it's on black or white surface
 int Ktot = 1;         //overall gain coefficient
 int Kp = 30;          //proportional gain coefficient
 int Ki = 0;           //integral gain coefficient
 int Kd = 0;           //derivative gain coefficient
-int speed = 100;      //default speed of motor, before any error correction
+int qrdThresh = 100;  //threshold qrd output value for deciding whether it's on black or white surface
+int speed = 200;      //default speed of motor, before any error correction
 
 //parameters for control. Not changed during operation (change it here in code if need be)
 int errorHalf = 1;    //error value when one of the two QRDs are off of the tape
 int errorFull = 5;    //error value when both qrds are off of the tape
+int maxK = 500;       //max value that the K values above can be
 
 void setup() {
   #include <phys253setup.txt>
@@ -33,15 +34,73 @@ void loop() {
   menu(); //go to menu by default when board starts up
 }
 
+/*
+ * knob6 toggles which menu item to change, and while stopbutton is held down knob7 adjusts the current menu item value
+ */
 void menu() {
+  LCD.clear();
+  LCD.home();
+  LCD.println("Menu");
+  delay(200);           //make sure LCD display is readable, and give time to let user release stopbutton
+  
+  int knob6 = (int)(knob(6)/1024.0*6);    //sort analog voltages into 6 different menu items
+  switch(knob6) {
+    case 0:
+      while(stopbutton()) {
+        Ktot = (int)(knob(7)/1023.0*maxK);
+      }
+      LCD.print("Ktot: ");
+      LCD.print(Ktot);
+      break;
+    case 1:
+      while(stopbutton()) {
+        Kp = (int)(knob(7)/1023.0*maxK);
+      }
+      LCD.print("Kp: ");
+      LCD.print(Kp);
+      break;
+    case 2:
+      while (stopbutton()) {
+        Ki = (int)(knob(7)/1023.0*maxK);
+      }
+      LCD.print("Ki: ");
+      LCD.print(Ki);
+      break;
+    case 3:
+      while (stopbutton()) {
+        Kd = (int)(knob(7)/1023.0*maxK);
+      }
+      LCD.print("Kd: ");
+      LCD.print(Kd);
+      break;
+    case 4:
+      while (stopbutton()) {
+        qrdThresh = knob(7);
+      }
+      LCD.print("qrdThresh: ");
+      LCD.print(qrdThresh);
+      break;
+    case 5:
+      while (stopbutton()) {
+        speed = (int)(knob(7)/1023.0*255);
+      }
+      LCD.print("speed: ");
+      LCD.print(speed);
+      break;
+  }
   
   //recursively call menu() unless startbutton is pressed
-  if (startbutton()) run;
-  else menu();
+  if (startbutton()) {
+    LCD.clear();
+    LCD.home();
+    run();
+  }
+  else {
+    menu();
+  }
 }
 
-//I don't like the position of this variable. It should be local since it's only ever used in run(), but its value will be lost if I make it local to run()
-// because of the recursive structure of run() (as opposed to having a loop inside it)
+//this variable is only used in run() but needs to be place here so it doesn't reset every time run() is called
 int lastError = errorHalf;    //arbitrarily initialize it with value
 
 void run() {
@@ -54,20 +113,19 @@ void run() {
   else if (!left && right) error = errorHalf;
   else error = (lastError>0) ? errorFull : -1*errorFull;
 
-  //correction temporary only has proportional term
+  //correction temporarily only has proportional term
   int corr = Ktot * (Kp * error);
 
   motor.speed(M_L, speed + corr);
   motor.speed(M_R, speed - corr);
+
+  lastError = error;
   
   // recursively call run() unless stopbutton is pressed
   if (stopbutton()) {
     motor.stop_all();
     menu();
   }
-  else {
-    lastError = error;
-    run();
-  }
+  else run();
 }
 
