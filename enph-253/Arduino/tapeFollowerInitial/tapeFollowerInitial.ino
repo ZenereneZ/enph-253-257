@@ -24,7 +24,7 @@ int speed = 200;      //default speed of motor, before any error correction
 //parameters for control. Not changed during operation (change it here in code if need be)
 int errorHalf = 1;    //error value when one of the two QRDs are off of the tape
 int errorFull = 5;    //error value when both qrds are off of the tape
-int maxK = 500;       //max value that the K values above can be
+int maxK = 100;       //max value that the K values above can be
 
 void setup() {
   #include <phys253setup.txt>
@@ -41,53 +41,42 @@ void menu() {
   LCD.clear();
   LCD.home();
   LCD.println("Menu");
-  delay(200);           //make sure LCD display is readable, and give time to let user release stopbutton
+  delay(300);           //make sure LCD display is readable, and give time to let user release stopbutton
   
   int knob6 = (int)(knob(6)/1024.0*6);    //sort analog voltages into 6 different menu items
   switch(knob6) {
     case 0:
-      while(stopbutton()) {
-        Ktot = (int)(knob(7)/1023.0*maxK);
-      }
+      if (stopbutton()) Ktot = (int)(knob(7)/1023.0*maxK);
       LCD.print("Ktot: ");
       LCD.print(Ktot);
       break;
     case 1:
-      while(stopbutton()) {
-        Kp = (int)(knob(7)/1023.0*maxK);
-      }
+      if (stopbutton()) Kp = (int)(knob(7)/1023.0*maxK);
       LCD.print("Kp: ");
       LCD.print(Kp);
       break;
     case 2:
-      while (stopbutton()) {
-        Ki = (int)(knob(7)/1023.0*maxK);
-      }
+      if (stopbutton()) Ki = (int)(knob(7)/1023.0*maxK);
       LCD.print("Ki: ");
       LCD.print(Ki);
       break;
     case 3:
-      while (stopbutton()) {
-        Kd = (int)(knob(7)/1023.0*maxK);
-      }
+      if (stopbutton()) Kd = (int)(knob(7)/1023.0*maxK);
       LCD.print("Kd: ");
       LCD.print(Kd);
       break;
     case 4:
-      while (stopbutton()) {
-        qrdThresh = knob(7);
-      }
+      if (stopbutton()) qrdThresh = knob(7);
       LCD.print("qrdThresh: ");
       LCD.print(qrdThresh);
       break;
     case 5:
-      while (stopbutton()) {
-        speed = (int)(knob(7)/1023.0*255);
-      }
+      if (stopbutton()) speed = (int)(knob(7)/1023.0*255);
       LCD.print("speed: ");
       LCD.print(speed);
       break;
   }
+  delay(300);
   
   //recursively call menu() unless startbutton is pressed
   if (startbutton()) {
