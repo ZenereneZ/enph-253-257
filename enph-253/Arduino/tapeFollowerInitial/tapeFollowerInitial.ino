@@ -15,11 +15,11 @@
 
 //parameters for control, configurable from menu during operation. The values assigned below are arbitrary initial values
 int Ktot = 1;         //overall gain coefficient
-int Kp = 30;          //proportional gain coefficient
+int Kp = 32;          //proportional gain coefficient
 int Ki = 0;           //integral gain coefficient
-int Kd = 0;           //derivative gain coefficient
+int Kd = 5;           //derivative gain coefficient
 int qrdThresh = 100;  //threshold qrd output value for deciding whether it's on black or white surface
-int speed = 200;      //default speed of motor, before any error correction
+int speed = 226;      //default speed of motor, before any error correction
 
 //parameters for control. Not changed during operation (change it here in code if need be)
 int errorHalf = 1;    //error value when one of the two QRDs are off of the tape
@@ -30,8 +30,7 @@ void setup() {
   #include <phys253setup.txt>
 }
 
-void loop() {
-  menu(); //go to menu by default when board starts up
+void loop() {  menu(); //go to menu by default when board starts up
 }
 
 /*
@@ -40,7 +39,8 @@ void loop() {
 void menu() {
   LCD.clear();
   LCD.home();
-  LCD.println("Menu");
+  LCD.print("Menu");
+  LCD.setCursor(0,1);
   delay(500);           //make sure LCD display is readable, and give time to let user release stopbutton
   
   int knob6 = (int)(knob(6)/1024.0*6);    //sort analog voltages into 6 different menu items
@@ -82,6 +82,7 @@ void menu() {
   if (startbutton()) {
     LCD.clear();
     LCD.home();
+    initializeRun();
     run();
   }
   else {
@@ -90,7 +91,18 @@ void menu() {
 }
 
 //this variable is only used in run() but needs to be place here so it doesn't reset every time run() is called
-int lastError = errorHalf;    //arbitrarily initialize it with value
+int lastError;    //arbitrarily initialize it with value (error on previous step)
+int lastErrorBeforeChange; // previous error different than current error
+int stepsCurrentError; // steps currently on current error
+int stepsLastError; // steps on previous error
+
+void initializeRun()
+{
+  lastError = 0;
+  lastErrorBeforeChange = 0;
+  stepsCurrentError = 0;
+  stepsLastError = 0;
+}
 
 void run() {
   boolean left = analogRead(QRD_L) > qrdThresh; //true if the qrd is on a black surface
@@ -102,13 +114,33 @@ void run() {
   else if (!left && right) error = errorHalf;
   else error = (lastError>0) ? errorFull : -1*errorFull;
 
+  if(error != lastError)
+  {
+    lastErrorBeforeChange = lastError;
+    stepsLastError = stepsCurrentError;
+    stepsCurrentError = 1;
+  }
+
+  int p = Kp * error;
+  int d = (int)((float)Kd*(float)(error-lastErrorBeforeChange)/(float)(stepsLastError + stepsCurrentError));
+  
   //correction temporarily only has proportional term
-  int corr = Ktot * (Kp * error);
+  int corr = Ktot * (p + d);
+  
+  motor.speed(M_L, boundSpeed(speed - corr));
+  motor.speed(M_R, boundSpeed(speed + corr));
 
-  motor.speed(M_L, speed + corr);
-  motor.speed(M_R, speed - corr);
-
+  stepsCurrentError++;
   lastError = error;
+
+  //display current speed every so often
+  if (stepsCurrentError >= 30) {
+    LCD.clear();
+    LCD.home();
+    LCD.print(boundSpeed(speed - corr));
+    LCD.setCursor(0,1);
+    LCD.print(boundSpeed(speed + corr));
+  }
   
   // recursively call run() unless stopbutton is pressed
   if (stopbutton()) {
@@ -116,5 +148,12 @@ void run() {
     menu();
   }
   else run();
+}
+
+//keeps speed value bounded so it remains between 0 and 255
+int boundSpeed(int val) {
+  if (val > 255) return 255;
+  else if (val < -255) return -255;
+  else return val;
 }
 
