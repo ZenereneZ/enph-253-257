@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 import csv
 
 ### STUFF WE CAN CHANGE ###
-epsilon = 0.3 # emissivity (0-1)
-kc = 16 # conduction constant
+epsilon = 0.1 # emissivity (0-1)
+kc = 14 # convection constant
 efficiency = 0.9 # efficiency of power (0-1)
-c = 900 # specific heat capacity
+c = 1200 # specific heat capacity
 Tamb = 24 # ambient temperature (C)
-k = 220 # thermal conductivity (W/(m*k))
+k = 160 # thermal conductivity (W/(m*k))
 
 ### DO NOT CHANGE ###
 dt = 0.1 # delta time (s)
