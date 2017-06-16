@@ -13,13 +13,13 @@
 #define M_L 0     //motors have to be hooked up so a positive voltage makes car go forward
 #define M_R 1
 
-//parameters for control, configurable from menu during operation. The values assigned below are arbitrary initial values
+//parameters for control, configurable from menu during operation
 int Ktot = 1;         //overall gain coefficient
-int Kp = 32;          //proportional gain coefficient
+int Kp = 70;          //proportional gain coefficient
 int Ki = 0;           //integral gain coefficient
 int Kd = 5;           //derivative gain coefficient
 int qrdThresh = 100;  //threshold qrd output value for deciding whether it's on black or white surface
-int speed = 226;      //default speed of motor, before any error correction
+int speed = 254;      //default speed of motor, before any error correction
 
 //parameters for control. Not changed during operation (change it here in code if need be)
 int errorHalf = 1;    //error value when one of the two QRDs are off of the tape
@@ -30,7 +30,8 @@ void setup() {
   #include <phys253setup.txt>
 }
 
-void loop() {  menu(); //go to menu by default when board starts up
+void loop() {
+  menu(); //go to menu by default when board starts up
 }
 
 /*
@@ -90,14 +91,13 @@ void menu() {
   }
 }
 
-//this variable is only used in run() but needs to be place here so it doesn't reset every time run() is called
-int lastError;    //arbitrarily initialize it with value (error on previous step)
+int lastError;    // error read during previous step
 int lastErrorBeforeChange; // previous error different than current error
 int stepsCurrentError; // steps currently on current error
 int stepsLastError; // steps on previous error
 
-void initializeRun()
-{
+//called when going to run() mode from a different mode
+void initializeRun() {
   lastError = 0;
   lastErrorBeforeChange = 0;
   stepsCurrentError = 0;
@@ -114,8 +114,7 @@ void run() {
   else if (!left && right) error = errorHalf;
   else error = (lastError>0) ? errorFull : -1*errorFull;
 
-  if(error != lastError)
-  {
+  if(error != lastError) {
     lastErrorBeforeChange = lastError;
     stepsLastError = stepsCurrentError;
     stepsCurrentError = 1;
@@ -124,23 +123,22 @@ void run() {
   int p = Kp * error;
   int d = (int)((float)Kd*(float)(error-lastErrorBeforeChange)/(float)(stepsLastError + stepsCurrentError));
   
-  //correction temporarily only has proportional term
   int corr = Ktot * (p + d);
   
   motor.speed(M_L, boundSpeed(speed - corr));
   motor.speed(M_R, boundSpeed(speed + corr));
 
-  stepsCurrentError++;
-  lastError = error;
-
   //display current speed every so often
-  if (stepsCurrentError >= 30) {
+  if (stepsCurrentError >= 100) {
     LCD.clear();
     LCD.home();
     LCD.print(boundSpeed(speed - corr));
     LCD.setCursor(0,1);
     LCD.print(boundSpeed(speed + corr));
   }
+
+  stepsCurrentError++;
+  lastError = error;
   
   // recursively call run() unless stopbutton is pressed
   if (stopbutton()) {
@@ -150,7 +148,7 @@ void run() {
   else run();
 }
 
-//keeps speed value bounded so it remains between 0 and 255
+//keeps speed value bounded so it remains between -255 and 255
 int boundSpeed(int val) {
   if (val > 255) return 255;
   else if (val < -255) return -255;
