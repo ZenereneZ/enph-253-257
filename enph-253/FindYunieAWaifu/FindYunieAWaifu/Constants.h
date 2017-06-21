@@ -1,5 +1,5 @@
-#ifndef _CONFIG_H
-#define _CONFIG_H
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
 #define QRD_TAPE_LEFT 0
 #define QRD_TAPE_RIGHT 1
