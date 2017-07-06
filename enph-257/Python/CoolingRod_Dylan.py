@@ -4,14 +4,18 @@ import csv
 import matplotlib 
 
 ### STUFF WE CAN CHANGE ###
-epsilon = 0.5 # emissivity (0-1)
-kc = 9.3 # convection constant
-efficiency = 0.65 # efficiency of power (0-1)
+epsilon = 0.28 # emissivity (0-1)
+kc = 12.8 # convection constant
+efficiency = 0.76 # efficiency of power (0-1)
 c = 950 # specific heat capacity
 Tamb = 25 # ambient temperature (C)
-k = 135 # thermal conductivity (W/(m*k))
+k = 185 # thermal conductivity (W/(m*k))
 delayStart = 0.2 #mins
 cycleTime = 5 #mins
+
+### Calibration values ###
+multVal = 0.7
+addVal = -1.0
 
 ### DO NOT CHANGE ###
 dt = 0.1 # delta time (s)
@@ -98,8 +102,9 @@ def main():
     t = range(1, seconds_of_simulation + 1)
     for i in range(6):
         plt.plot(t, simSensors[i])
-    matplotlib.rc('xtick', labelsize=10) 
-    matplotlib.rc('ytick', labelsize=10)
+    import matplotlib 
+    plt.rc('xtick', labelsize=20) 
+    plt.rc('ytick', labelsize=20)
     plt.xlim([0, seconds_of_simulation])
     plt.ylim([20, 50])
     plt.xlabel("Time (s)", fontsize = 20)
@@ -117,9 +122,9 @@ def main():
     actual_sensors[0] = np.add(np.multiply(actual_sensors[0], 12.35075993), 2.137845714)
     actual_sensors[1] = np.add(np.multiply(actual_sensors[1], 12.56610942), (1.560968677-0.7))
     actual_sensors[2] = np.add(np.multiply(actual_sensors[2], (12.38144106-0.0)), (2.280551918-1.7))#-0.1705)
-    actual_sensors[3] = np.add(np.multiply(actual_sensors[3], 11.73043864), 2.921179959)#-0.3492)
-    actual_sensors[4] = np.add(np.multiply(actual_sensors[4], 12.06061056), 2.88821187)#-0.0333)
-    actual_sensors[5] = np.add(np.multiply(actual_sensors[5], 11.84229272), (2.886866333+0.2))
+    actual_sensors[3] = np.add(np.multiply(actual_sensors[3], (11.80043864+multVal)), (2.921179959+addVal))#-0.3492)
+    actual_sensors[4] = np.add(np.multiply(actual_sensors[4], (12.06061056+multVal)), (2.88821187+addVal))#-0.0333)
+    actual_sensors[5] = np.add(np.multiply(actual_sensors[5], (11.84229272+multVal)), (3.086866333+addVal))
 
     for i in range(6):
         factor = 10
