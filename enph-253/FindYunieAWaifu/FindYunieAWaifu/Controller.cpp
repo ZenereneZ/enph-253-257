@@ -1,4 +1,5 @@
 #include "Controller.h"
+#include <phys253.h>
 Controller::Controller()
 {
     driver = Driver();
@@ -23,12 +24,12 @@ void Controller::execute()
 
 void Controller::getState()
 {
-    if(driver.getStopButton())
+    if(stopbutton())
     {
         driver.stop();
         state = Menu;
     }
-    else if(driver.getStartButton())
+    else if(startbutton())
     {
         state = Driving;
     }

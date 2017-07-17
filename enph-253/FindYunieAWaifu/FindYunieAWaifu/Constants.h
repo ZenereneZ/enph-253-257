@@ -3,6 +3,8 @@
 
 #define QRD_TAPE_LEFT 0
 #define QRD_TAPE_RIGHT 1
+#define QRD_AGENT_TAPE_LEFT 3
+#define QRD_AGENT_TAPE_RIGHT 4
 
 #define MOTOR_LEFT 0
 #define MOTOR_RIGHT 1

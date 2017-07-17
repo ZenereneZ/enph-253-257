@@ -2,7 +2,6 @@
 #define DRIVER_H
 
 #include "Constants.h"
-
 class Driver {
 public:
     Driver();
