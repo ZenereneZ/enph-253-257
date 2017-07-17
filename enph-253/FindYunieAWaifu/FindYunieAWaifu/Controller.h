@@ -2,7 +2,6 @@
 #define CONTROLLER_H
 
 #include "Driver.h"
-#include <phys253.h>
 
 class Controller
 {
@@ -11,9 +10,13 @@ public:
     void execute();
 
 private:
+    enum State{
+      Menu,
+      Driving
+    };
     Driver driver;
-    Menu menu;
-
+    State state;
+    State getState();
 };
 
 #endif

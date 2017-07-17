@@ -1,17 +1,34 @@
 #include "Controller.h"
-
+#include <phys253.h>
 Controller::Controller()
 {
     driver = Driver();
-    menu = Menu(&driver);
-    menu.set();
+    state = Menu;
 }
 
-void Controller::execute() 
+void Controller::execute()
 {
-    if (stopbutton())
-    {
-        motor.stop_all();
-        menu.set();
-    }
+  state = getState();
+  switch(state)
+  {
+    case Menu:
+      driver.initialize();
+      break;
+    case Driving:
+      break;
+    default:
+      break;
+  }
+}
+
+Controller::State Controller::getState()
+{
+  if(startbutton())
+  {
+    state = Driving;
+  }
+  else if(stopbutton())
+  {
+    state = Menu;
+  }
 }
