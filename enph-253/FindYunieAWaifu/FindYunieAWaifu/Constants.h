@@ -7,11 +7,14 @@
 #define MOTOR_LEFT 0
 #define MOTOR_RIGHT 1
 
+#define NUM_VARIABLES 6
+#define MENU_BLINK_TIME 500
 #define MENU_MAX_K 100
 #define GAIN_KP 70
 #define GAIN_KD 5
 #define GAIN_KI 0
 #define GAIN_K 1
+#define MAX_VOLTAGE 1023.0
 
 #define QRD_THRESHOLD 100
 

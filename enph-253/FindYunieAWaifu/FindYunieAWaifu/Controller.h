@@ -10,13 +10,17 @@ public:
     void execute();
 
 private:
-    enum State{
+    enum State
+    {
       Menu,
-      Driving
+      Driving,
+      IrDetection,
+      Claw,
+      Zipline
     };
     Driver driver;
     State state;
-    State getState();
+    void getState();
 };
 
 #endif

@@ -8,9 +8,12 @@ public:
     Driver();
     void drive();
     void initialize();
-
+    void stop();
+    bool getStartButton();
+    bool getStopButton();
 
 private:
+
     short K;
     short Kp;
     short Ki;
@@ -23,6 +26,8 @@ private:
     int stepsLastError; // steps on previous error
 
     int getTapeFollowingError();
+
+
 };
 
 #endif

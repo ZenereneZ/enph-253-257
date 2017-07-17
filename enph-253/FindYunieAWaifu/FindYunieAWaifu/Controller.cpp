@@ -1,5 +1,4 @@
 #include "Controller.h"
-#include <phys253.h>
 Controller::Controller()
 {
     driver = Driver();
@@ -8,27 +7,29 @@ Controller::Controller()
 
 void Controller::execute()
 {
-  state = getState();
-  switch(state)
-  {
+    getState();
+    switch(state)
+    {
     case Menu:
-      driver.initialize();
-      break;
+        driver.initialize();
+        break;
     case Driving:
-      break;
+        driver.drive();
+        break;
     default:
-      break;
-  }
+        break;
+    }
 }
 
-Controller::State Controller::getState()
+void Controller::getState()
 {
-  if(startbutton())
-  {
-    state = Driving;
-  }
-  else if(stopbutton())
-  {
-    state = Menu;
-  }
+    if(driver.getStopButton())
+    {
+        driver.stop();
+        state = Menu;
+    }
+    else if(driver.getStartButton())
+    {
+        state = Driving;
+    }
 }
