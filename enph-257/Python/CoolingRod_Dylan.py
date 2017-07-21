@@ -1,19 +1,26 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
+import matplotlib 
 
 ### STUFF WE CAN CHANGE ###
-epsilon = 0.1 # emissivity (0-1)
-kc = 14 # convection constant
-efficiency = 0.9 # efficiency of power (0-1)
-c = 1200 # specific heat capacity
-Tamb = 24 # ambient temperature (C)
-k = 160 # thermal conductivity (W/(m*k))
+epsilon = 0.28 # emissivity (0-1)
+kc = 12.8 # convection constant
+efficiency = 0.76 # efficiency of power (0-1)
+c = 950 # specific heat capacity
+Tamb = 25 # ambient temperature (C)
+k = 185 # thermal conductivity (W/(m*k))
+delayStart = 0.2 #mins
+cycleTime = 5 #mins
+
+### Calibration values ###
+multVal = 0.7
+addVal = -1.0
 
 ### DO NOT CHANGE ###
 dt = 0.1 # delta time (s)
 L = 0.305 # length of rod (m)
-a = 0.0118 # radius (m)
+a = 0.0112 # radius (m)
 rho = 2700 # density (kg/m^3)
 dx = 0.01 # delta x (m)
 P = 9.5 # max power (W)
@@ -24,7 +31,6 @@ colors = ['b','g','r','c','m','y']
 
 ### DEPENDANT VARIABLES ###
 numSteps = seconds_of_simulation/dt
-#simSensors = np.empty((seconds_of_simulation, 6), dtype = np.float16)
 simSensors = [[] for i in np.arange(6)]
 T_n = np.full((30), Tamb, dtype=np.float32)
 
@@ -32,7 +38,9 @@ def run_sim():
     global P
     power = P * efficiency
     for i in np.arange(numSteps):
-        if (int((i)/(numSteps *dt)) % 2 == 1):
+        if (i < (delayStart*60/dt)):
+            power = 0
+        elif (int((i - delayStart*60/dt)/(cycleTime*60/dt)) % 2 == 1):
             power = 0
         else:
             power = P * efficiency
@@ -42,15 +50,7 @@ def run_sim():
             T_n[j] += delta_temp_middle(T_n[j-1], T_n[j], T_n[j+1])
 
         if (i % (1/dt) == 0):
-            '''
-            idt = int(i * dt)
-            simSensors[idt, 0] = (T_n[1] + T_n[2])/2
-            simSensors[idt, 1] = (T_n[7])
-            simSensors[idt, 2] = (T_n[12] + T_n[13])/2
-            simSensors[idt, 3] = (T_n[18])
-            simSensors[idt, 4] = (T_n[23] + T_n[24])/2
-            simSensors[idt, 5] = (T_n[29])
-            '''
+            
             simSensors[0].append((T_n[1] + T_n[2])/2)
             simSensors[1].append(T_n[7])
             simSensors[2].append((T_n[12] + T_n[13])/2)
@@ -101,13 +101,16 @@ def main():
     plt.figure()
     t = range(1, seconds_of_simulation + 1)
     for i in range(6):
-        #plt.plot(t, simSensors[:, i])
         plt.plot(t, simSensors[i])
+    import matplotlib 
+    plt.rc('xtick', labelsize=20) 
+    plt.rc('ytick', labelsize=20)
     plt.xlim([0, seconds_of_simulation])
     plt.ylim([20, 50])
-    plt.xlabel("Time (s)")
-    plt.ylabel("Temperature (C)")
-
+    plt.xlabel("Time (s)", fontsize = 20)
+    plt.ylabel("Temperature (C)", fontsize = 20)
+    plt.legend(("15mm","70mm","125mm","180mm","235mm","290mm"),fontsize = 20, loc = 'best')
+    
     actual_sensors = [[] for i in range(6)]
     with open('../MATLAB/output_files/june5_1-41.csv', 'r') as file:
         dataReader = csv.reader(file, delimiter = ',')
@@ -116,15 +119,15 @@ def main():
             for i in range(6):
                 actual_sensors[i].append(float(row[i]))
 
-    actual_sensors[0] = np.add(np.multiply(actual_sensors[0], 12.99), 0.1225)
-    actual_sensors[1] = np.add(np.multiply(actual_sensors[1], 12.434), 1.974)
-    actual_sensors[2] = np.add(np.multiply(actual_sensors[2], 13), 0.3263)
-    actual_sensors[3] = np.add(np.multiply(actual_sensors[3], 12.02), 1.981)
-    actual_sensors[4] = np.add(np.multiply(actual_sensors[4], 12.62), 1.1282)
-    actual_sensors[5] = np.add(np.multiply(actual_sensors[5], 11.95), 2.5395)
+    actual_sensors[0] = np.add(np.multiply(actual_sensors[0], 12.35075993), 2.137845714)
+    actual_sensors[1] = np.add(np.multiply(actual_sensors[1], 12.56610942), (1.560968677-0.7))
+    actual_sensors[2] = np.add(np.multiply(actual_sensors[2], (12.38144106-0.0)), (2.280551918-1.7))#-0.1705)
+    actual_sensors[3] = np.add(np.multiply(actual_sensors[3], (11.80043864+multVal)), (2.921179959+addVal))#-0.3492)
+    actual_sensors[4] = np.add(np.multiply(actual_sensors[4], (12.06061056+multVal)), (2.88821187+addVal))#-0.0333)
+    actual_sensors[5] = np.add(np.multiply(actual_sensors[5], (11.84229272+multVal)), (3.086866333+addVal))
 
     for i in range(6):
-        factor = 50
+        factor = 10
         cumsum_vec = np.cumsum(np.insert(actual_sensors[i], 0, 0))
         ma_vec = (cumsum_vec[factor:] - cumsum_vec[:-factor]) / factor
         moving_average = ma_vec[::factor]
@@ -133,7 +136,5 @@ def main():
         plt.scatter(t, moving_average,c=colors[i], marker = '.', linewidths = 0.1)
 
     plt.show()
-
-
 if __name__ == "__main__":
     main()
