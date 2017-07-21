@@ -1,4 +1,5 @@
 #include "Driver.h"
+#include "Constants.h"
 #include <phys253.h>
 
 Driver::Driver()
@@ -73,6 +74,8 @@ void Driver::drive()
     }
 
     int positional = Kp * error;
+
+    //TODO fix casts
     int derivative =  (int)((float)Kd*(float)(error-lastErrorBeforeChange)/(float)(stepsLastError + stepsCurrentError));
 
     int corr = K * (positional + derivative);
@@ -91,10 +94,15 @@ void Driver::stop()
 
 int Driver::getTapeFollowingError()
 {
-    bool onLeft = analogRead(QRD_TAPE_LEFT) > qrdThresh;
-    bool onRight = analogRead(QRD_TAPE_RIGHT) > qrdThresh;
+    bool onLeft = analogRead(QRD_TAPE_RIGHT) > qrdThresh;
+    bool onRight = analogRead(QRD_TAPE_LEFT) > qrdThresh;
     if (onLeft && onRight) return 0;
     else if (onLeft && !onRight) return ERROR_LEFT_HALF;
     else if (!onLeft && onRight) return ERROR_RIGHT_HALF;
     else return (lastError>0) ? ERROR_RIGHT_FULL : ERROR_LEFT_FULL;
+}
+
+void Driver::setSpeed(int speed)
+{
+    this->speed = speed;
 }

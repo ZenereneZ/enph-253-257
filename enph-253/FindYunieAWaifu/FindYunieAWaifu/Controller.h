@@ -20,8 +20,8 @@ public:
 private:
     enum State
     {
-      Menu,
-      TapeFollowGate,
+      MenuSetup,
+      GateFollow,
       TapeFollow,
       TapeFollowHill,
       AgentPickup,

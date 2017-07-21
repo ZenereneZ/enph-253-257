@@ -6,7 +6,7 @@
 #ifndef DRIVER_H
 #define DRIVER_H
 
-#include "Constants.h"
+
 class Driver {
 public:
     Driver();
@@ -14,6 +14,7 @@ public:
     void initialize();
     void initializeErrors();
     void stop();
+    void setSpeed(int speed);
 
 private:
     short K; // total error gain

@@ -1,11 +1,13 @@
 #include "Controller.h"
 #include "ClawCollector.h"
+#include "IRDetector.h"
+#include "Constants.h"
 #include <phys253.h>
 
 Controller::Controller()
 {
     driver = Driver();
-    state = Menu;
+    state = MenuSetup;
 }
 
 /*
@@ -16,10 +18,10 @@ void Controller::execute()
 {
     switch(state)
     {
-        case(Menu):
+        case(MenuSetup):
             menuSetup();
             break;
-        case(TapeFollowGate):
+        case(GateFollow):
             gateFollow();
             break;
         case(TapeFollow):
@@ -62,20 +64,19 @@ void Controller::menuSetup()
 */
 void Controller::gateFollow()
 {
-    while(state == TapeFollowGate)
+    IRDetector irDetector = IRDetector();
+    while(state == GateFollow)
     {
-        driver.drive();
-
-        int agentL = analogRead(QRD_AGENT_TAPE_LEFT);
-        int agentR = analogRead(QRD_AGENT_TAPE_RIGHT);
-
-        if(agentL > QRD_THRESHOLD || agentR > QRD_THRESHOLD)
+        if(irDetector.getTenKHZ() > irDetector.getOneKHZ())
         {
             driver.stop();
-            delay(500);
         }
-        if(stopbutton()) state = Menu - 1;
+        else
+        {
+            driver.drive();
+        }
     }
+
 }
 
 /*
@@ -83,9 +84,11 @@ void Controller::gateFollow()
 */
 void Controller::tapeFollow()
 {
-    while(true)
+    int initialTime = millis();
+    while(millis() - initialTime < 10000)
     {
-        if(stopbutton()) state = Menu - 1;
+        driver.drive();
+        if(stopbutton()) state = MenuSetup - 1;
     }
 }
 
@@ -94,10 +97,15 @@ void Controller::tapeFollow()
 */
 void Controller::tapeFollowHill()
 {
+    driver.setSpeed(HILL_SPEED);
+
     while(true)
     {
-        if(stopbutton()) state = Menu - 1;
+        driver.drive();
+        if(stopbutton()) state = MenuSetup - 1;
     }
+
+    driver.setSpeed(REGULAR_SPEED);
 }
 
 /*
@@ -132,7 +140,7 @@ void Controller::freeFollow()
 {
     while(true)
     {
-        if(stopbutton()) state = Menu - 1;
+        if(stopbutton()) state = MenuSetup - 1;
     }
 }
 /*
@@ -144,6 +152,6 @@ void Controller::zipline()
 {
     while(true)
     {
-        if(stopbutton()) state = Menu;
+        if(stopbutton()) state = MenuSetup;
     }
 }

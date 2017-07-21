@@ -9,6 +9,12 @@ public:
     bool detectedAgentTape();
 
 private:
+    int baseAngle;
+    int armAngle;
+    void turnBase(int angle);
+    void turnArm(int angle);
+    void increaseBase(int angle);
+    void increaseArm(int angle);
 };
 
 

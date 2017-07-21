@@ -5,7 +5,8 @@ class IRDetector
 {
 public:
     IRDetector();
-    int ReadIR(int pin);
+    int getTenKHZ();
+    int getOneKHZ();
 private:
 };
 
