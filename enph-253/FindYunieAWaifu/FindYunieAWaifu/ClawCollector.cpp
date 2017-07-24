@@ -10,8 +10,15 @@ ClawCollector::ClawCollector()
 
 void ClawCollector::grabAgent()
 {
-
-
+    openHand();
+    turnArm(90, 0.3, 5)
+    turnBase(160, 0.1, 3);
+    turnArm(10, 0.3, 5);
+    closeHand();
+    turnArm(90, 0.3, 5);
+    turnBase(90, 0.1, 3);
+    turnArm(0, 0.3, 5);
+    openHand();
 }
 
 bool ClawCollector::detectedAgentTape()
@@ -26,33 +33,33 @@ bool ClawCollector::detectedAgentTape()
 
 }
 
-void ClawCollector::turnBase(int angle, double delayFactor, int minDelay, double fastestPoint)
+void ClawCollector::turnBase(int angle, double delayFactor, int minDelay)
 {
     int initAngle = baseAngle;
-    int fastestAngle = initAngle + (int)((angle - initAngle)*fastestPoint);
+    int midAngle = initAngle + (int)((angle - initAngle)*0.5);
 
-    boolean incrementForward = (angle > initAngle);
+    bool incrementForward = (angle > initAngle);
 
     while( (incrementForward && (baseAngle < angle)) || (!incrementForward && (baseAngle > angle)))
     {
         baseAngle += (incrementForward ? 1 : -1);
         RCServo0.write(baseAngle);
-        delay(max((int)(delayFactor*abs(fastestAngle - baseAngle)), minDelay));
+        delay(max((int)(delayFactor*abs(midAngle - baseAngle)), minDelay));
     }
 }
 
-void ClawCollector::turnArm(int angle, double delayFactor, int minDelay, double fastestPoint)
+void ClawCollector::turnArm(int angle, double delayFactor, int minDelay)
 {
     int initAngle = armAngle;
-    int fastestAngle = initAngle + (int)((angle - initAngle)*fastestPoint);
+    int midAngle = initAngle + (int)((angle - initAngle)*0.5);
 
-    boolean incrementForward = (angle > initAngle);
+    bool incrementForward = (angle > initAngle);
 
     while( (incrementForward && (armAngle < angle)) || (!incrementForward && (armAngle > angle)))
     {
         armAngle += (incrementForward ? 1 : -1);
         RCServo1.write(armAngle);
-        delay(max((int)(delayFactor*abs(fastestAngle - armAngle)), minDelay));
+        delay(max((int)(delayFactor*abs(midAngle- armAngle)), minDelay));
     }
 }
 

@@ -18,12 +18,10 @@ private:
 
         @param angle the final angle to turn the joint to
         @param delayFactor represents how drastic the acceleration is. A typical value will be around 0.1
-        @param minDelay the delay value at the fastest point of movement. A typical value will be around 3
-        @param fastestPoint represents which point of movement should be fastest. A value of 0.5 means that the joint will be
-                moving fastest halfway through the motion
+        @param minDelay the minimum delay value allowed for the movement. A typical value will be around 3
     */
-    void turnBase(int angle, double delayFactor, int minDelay, double fastestPoint);
-    void turnArm(int angle, double delayFactor, int minDelay, double fastestPoint);
+    void turnBase(int angle, double delayFactor, int minDelay);
+    void turnArm(int angle, double delayFactor, int minDelay);
 
     void openHand();
     void closeHand();
