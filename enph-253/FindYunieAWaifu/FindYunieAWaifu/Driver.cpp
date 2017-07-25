@@ -75,11 +75,10 @@ void Driver::drive()
 
     int positional = Kp * error;
 
-    //TODO fix casts
-    int derivative =  (int)((float)Kd*(float)(error-lastErrorBeforeChange)/(float)(stepsLastError + stepsCurrentError));
+    int derivative =  (float)Kd*(error-lastErrorBeforeChange)/(stepsLastError + stepsCurrentError);
 
     int corr = K * (positional + derivative);
-
+    
     motor.speed(MOTOR_LEFT, max(min(speed - corr, MAX_SPEED), MIN_SPEED));
     motor.speed(MOTOR_RIGHT, max(min(speed + corr, MAX_SPEED), MIN_SPEED));
 

@@ -11,13 +11,14 @@ ClawCollector::ClawCollector()
 void ClawCollector::grabAgent()
 {
     openHand();
-    turnArm(90, 0.3, 5);
-    turnBase(160, 0.1, 3);
-    turnArm(10, 0.3, 5);
+    turnArm(90, ARM_DELAY, MIN_ARM_DELAY);
+    turnBase(170, BASE_DELAY, MIN_BASE_DELAY);
+    turnArm(30, ARM_DELAY, MIN_ARM_DELAY);
     closeHand();
-    turnArm(90, 0.3, 5);
-    turnBase(90, 0.1, 3);
-    turnArm(0, 0.3, 5);
+    delay(CLAW_DELAY);
+    turnArm(90, ARM_DELAY, MIN_ARM_DELAY);
+    turnBase(90, BASE_DELAY, MIN_BASE_DELAY);
+    turnArm(90, ARM_DELAY, MIN_ARM_DELAY);
     openHand();
 }
 
@@ -72,3 +73,4 @@ void ClawCollector::closeHand()
 {
     RCServo2.write(CLOSE_HAND_ANGLE);
 }
+

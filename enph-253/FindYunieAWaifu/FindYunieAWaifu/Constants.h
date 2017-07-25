@@ -29,7 +29,7 @@
 #define MIN_SPEED -255
 
 #define STARTING_BASE_ANGLE 90
-#define STARTING_ARM_ANGLE 0
+#define STARTING_ARM_ANGLE 100
 #define OPEN_HAND_ANGLE 100
 #define CLOSE_HAND_ANGLE 10
 
@@ -40,5 +40,10 @@
 
 #define NUM_AGENTS 6
 
+#define ARM_DELAY 0.5
+#define BASE_DELAY 0.7
+#define MIN_ARM_DELAY 3
+#define MIN_BASE_DELAY 10
+#define CLAW_DELAY 250
 
 #endif
