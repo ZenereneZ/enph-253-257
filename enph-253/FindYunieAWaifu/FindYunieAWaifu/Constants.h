@@ -46,4 +46,7 @@
 #define MIN_BASE_DELAY 10
 #define CLAW_DELAY 250
 
+#define HIGH_LIMIT 5
+#define LOW_LIMIT -5
+
 #endif

@@ -2,6 +2,7 @@
 #include "ClawCollector.h"
 #include "IRDetector.h"
 #include "Constants.h"
+#include "Driver.h"
 #include <phys253.h>
 
 Controller::Controller()
@@ -50,6 +51,7 @@ void Controller::execute()
 void Controller::menuSetup()
 {
     driver.stop();
+    driver.setSurfaceDirection();
     while(!startbutton())
     {
         driver.initialize();
