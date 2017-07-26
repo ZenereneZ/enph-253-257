@@ -18,6 +18,7 @@ void Driver::initializeErrors()
   lastErrorBeforeChange = 0;
   stepsCurrentError = 0;
   stepsLastError = 0;
+  sumError = 0;
 }
 
 
@@ -72,12 +73,17 @@ void Driver::drive()
         stepsLastError = stepsCurrentError;
         stepsCurrentError = 1;
     }
+    //ensures sustained error doesn't get too large 
+    sumError = max(min(sumError, HIGH_LIMIT), LOW_LIMIT);
+    sumError += error;
 
     int positional = Kp * error;
 
     int derivative =  (float)Kd*(error-lastErrorBeforeChange)/(stepsLastError + stepsCurrentError);
 
-    int corr = K * (positional + derivative);
+    int integral = Ki * sumError;
+    
+    int corr = K * (positional + derivative + integral);
     
     motor.speed(MOTOR_LEFT, max(min(speed - corr, MAX_SPEED), MIN_SPEED));
     motor.speed(MOTOR_RIGHT, max(min(speed + corr, MAX_SPEED), MIN_SPEED));
@@ -105,3 +111,31 @@ void Driver::setSpeed(int speed)
 {
     this->speed = speed;
 }
+
+void Driver::setSurfaceDirection()
+{
+    LCD.clear();
+    //LCD.home();
+    LCD.setCursor(0,0);
+    LCD.print("start for CW");
+    LCD.setCursor(0,1);
+    LCD.print("stop for CCW");
+    int buttonPressed = false;
+    while(true){
+      while (stopbutton()){
+        surfaceDirection = 0;
+        buttonPressed = true;
+      }
+      while (startbutton()){
+        surfaceDirection = 1;
+        buttonPressed = true; 
+      }
+      if (buttonPressed) break;
+    }
+}
+
+int Driver::getSurfaceDirection()
+{
+    return surfaceDirection;
+}
+

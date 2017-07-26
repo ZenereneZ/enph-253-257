@@ -15,6 +15,8 @@ public:
     void initializeErrors();
     void stop();
     void setSpeed(int speed);
+    void setSurfaceDirection();
+    int getSurfaceDirection();
 
 private:
     short K; // total error gain
@@ -27,6 +29,8 @@ private:
     int lastErrorBeforeChange; // previous error different than current error
     int stepsCurrentError; // steps currently on current error
     int stepsLastError; // steps on previous error
+    int sumError; // sustained error 
+    int surfaceDirection; // direction which robot goes around tub (0 for CW, 1 for CCW)
 
     int getTapeFollowingError();
 };
