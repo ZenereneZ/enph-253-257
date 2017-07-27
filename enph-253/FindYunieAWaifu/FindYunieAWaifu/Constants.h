@@ -6,17 +6,20 @@
 #define QRD_TAPE_LEFT 1
 #define QRD_AGENT_TAPE_LEFT 2
 #define QRD_AGENT_TAPE_RIGHT 3
-#define TEN_KHZ_IR_PIN 4
-#define ONE_KHZ_IR_PIN 5
+#define TEN_KHZ_IR_PIN_R 4
+#define ONE_KHZ_IR_PIN_R 5
+#define TEN_KHZ_IR_PIN_L 6
+#define ONE_KHZ_IR_PIN_L 7
 
 #define MOTOR_LEFT 0
 #define MOTOR_RIGHT 1
+#define MOTOR_COLLECTION_BOX 2
 
 #define NUM_VARIABLES 6
 #define MENU_BLINK_TIME 500
 #define MENU_MAX_K 100
-#define GAIN_KP 32
-#define GAIN_KD 5
+#define GAIN_KP 55
+#define GAIN_KD 2
 #define GAIN_KI 0
 #define GAIN_K 1
 #define MAX_VOLTAGE 1023.0
@@ -25,6 +28,7 @@
 
 #define REGULAR_SPEED 50
 #define HILL_SPEED 100
+#define FREE_FOLLOW_SPEED 40
 #define MAX_SPEED 255
 #define MIN_SPEED -255
 
@@ -37,6 +41,9 @@
 #define ERROR_LEFT_FULL -5
 
 #define NUM_AGENTS 6
+
+#define TAPE_FOLLOW_TIME 4000
+#define HILL_FOLLOW_TIME 2000
 
 
 #endif

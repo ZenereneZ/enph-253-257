@@ -6,15 +6,20 @@
 #ifndef DRIVER_H
 #define DRIVER_H
 
+#include "IRDetector.h"
 
 class Driver {
 public:
     Driver();
     void drive();
+    void irDrive(IRDetector* irDetectorRight, IRDetector* irDetectorLeft);
     void initialize();
     void initializeErrors();
     void stop();
     void setSpeed(int speed);
+    void turnLeft();
+    void turnRight();
+    void ziplineDrive();
 
 private:
     short K; // total error gain

@@ -4,10 +4,12 @@
 class IRDetector
 {
 public:
-    IRDetector();
+    IRDetector(int tenPin, int onePin);
     int getTenKHZ();
     int getOneKHZ();
 private:
+    int tenKhzPin;
+    int oneKhzPin;
 };
 
 

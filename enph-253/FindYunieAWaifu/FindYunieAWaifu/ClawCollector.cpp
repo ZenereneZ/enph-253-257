@@ -10,8 +10,7 @@ ClawCollector::ClawCollector()
 
 void ClawCollector::grabAgent()
 {
-
-
+    delay(1000);
 }
 
 bool ClawCollector::detectedAgentTape()

@@ -53,7 +53,6 @@ void Controller::menuSetup()
     while(!startbutton())
     {
         driver.initialize();
-        driver.initializeErrors();
     }
     LCD.clear();
 }
@@ -64,19 +63,62 @@ void Controller::menuSetup()
 */
 void Controller::gateFollow()
 {
-    IRDetector irDetector = IRDetector();
-    while(state == GateFollow)
+    /*IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
+    IRDetector irDetectorL = IRDetector(TEN_KHZ_IR_PIN_L, ONE_KHZ_IR_PIN_L);
+
+    bool seenGate = false;
+    bool gateOpen = false;
+
+    //TODO change later in case gate is already open
+    while(!gateOpen)
     {
-        if(irDetector.getTenKHZ() > irDetector.getOneKHZ())
+        if(irDetectorL.getTenKHZ() > irDetectorL.getOneKHZ())
         {
             driver.stop();
+            seenGate = true;
         }
         else
         {
             driver.drive();
+            if(seenGate)
+            {
+                gateOpen = true;
+            }
         }
-    }
+        if(stopbutton()) state = MenuSetup - 1;
+    }*/
+    while(state = GateFollow)
+    {
+        LCD.clear();
+        LCD.home();
+        LCD.print(analogRead(QRD_TAPE_RIGHT));
+        LCD.print(" ");
+        LCD.print(analogRead(QRD_TAPE_LEFT));
+        LCD.print(" ");
+        LCD.print(analogRead(QRD_AGENT_TAPE_RIGHT));
+        LCD.print(" ");
+        LCD.print(analogRead(QRD_AGENT_TAPE_LEFT));
+        driver.drive();
+        /*
+        int agentRight = analogRead(QRD_AGENT_TAPE_RIGHT);
+        int agentLeft = analogRead(QRD_AGENT_TAPE_LEFT);
+        if(agentLeft > QRD_THRESHOLD)
+        {
+            driver.stop();
+            delay(1000);
+            for(int i = 0; i < 3000; ++i)
+            {
+                driver.drive();
+            }
+        }
+        else{
 
+            if(stopbutton()) state = MenuSetup - 1;
+            driver.drive();
+        }
+        */
+
+    }
 }
 
 /*
@@ -85,7 +127,7 @@ void Controller::gateFollow()
 void Controller::tapeFollow()
 {
     int initialTime = millis();
-    while(millis() - initialTime < 10000)
+    while(millis() - initialTime < TAPE_FOLLOW_TIME)
     {
         driver.drive();
         if(stopbutton()) state = MenuSetup - 1;
@@ -97,9 +139,10 @@ void Controller::tapeFollow()
 */
 void Controller::tapeFollowHill()
 {
-    driver.setSpeed(HILL_SPEED);
+    int initialTime = millis();
 
-    while(true)
+    driver.setSpeed(HILL_SPEED);
+    while(millis() - initialTime < HILL_FOLLOW_TIME)
     {
         driver.drive();
         if(stopbutton()) state = MenuSetup - 1;
@@ -125,6 +168,10 @@ void Controller::agentPickup()
             driver.drive();
         }
         clawCollector.grabAgent();
+        while(clawCollector.detectedAgentTape())
+        {
+            driver.drive();
+        }
     }
 
     //TODO Tape follow another semi circle
@@ -138,9 +185,11 @@ void Controller::agentPickup()
 */
 void Controller::freeFollow()
 {
+    IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
+    IRDetector irDetectorL = IRDetector(TEN_KHZ_IR_PIN_L, ONE_KHZ_IR_PIN_L);
     while(true)
     {
-        if(stopbutton()) state = MenuSetup - 1;
+        driver.irDrive(&irDetectorR, &irDetectorL);
     }
 }
 /*

@@ -28,6 +28,7 @@ private:
       FreeFollow,
       Zipline
     };
+
     int state;
 
     Driver driver;
