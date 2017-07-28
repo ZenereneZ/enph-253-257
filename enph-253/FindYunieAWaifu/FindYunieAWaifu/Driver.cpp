@@ -65,9 +65,21 @@ void Driver::initialize()
 * drive - gets error of QRD with respect to tape
 *       - drives motors in correct direction using error
 */
-void Driver::drive()
+void Driver::drive(int state)
 {
-    int error = getTapeFollowingErrorLeft();
+    int error = 0;
+    switch(state)
+    {
+        case(3):
+            error = getTapeFollowingErrorHill();
+            break;
+        case(4):
+            error = getTapeFollowingErrorAgents();
+            break;
+        default:
+            error = getTapeFollowingError();
+            break;
+    }
     if (error != lastError) {
         lastErrorBeforeChange = lastError;
         stepsLastError = stepsCurrentError;
@@ -133,7 +145,7 @@ void Driver::ziplineDrive()
     }
 }
 
-void Driver::driveToGate()
+void Driver::driveToGate(int state)
 {
     int timer = millis();
     while(millis() - timer < TIME_TO_GATE)
@@ -141,7 +153,7 @@ void Driver::driveToGate()
         LCD.clear();
         LCD.home();
         LCD.print("Driving To Gate");
-        this->drive();
+        this->drive(state);
     }
 }
 
@@ -155,7 +167,7 @@ int Driver::getTapeFollowingError()
     else return (lastError>0) ? ERROR_RIGHT_FULL : ERROR_LEFT_FULL;
 }
 
-int Driver::getTapeFollowingErrorLeft()
+int Driver::getTapeFollowingErrorAgents()
 {
     bool onLeft = analogRead(QRD_TAPE_RIGHT) > qrdThresh;
     bool onRight = analogRead(QRD_TAPE_LEFT) > qrdThresh;
@@ -164,7 +176,7 @@ int Driver::getTapeFollowingErrorLeft()
     else if (!onLeft && onRight) return 0;
     else return ERROR_LEFT_HALF;
 }
-int Driver::getTapeFollowingErrorLeftHill()
+int Driver::getTapeFollowingErrorHill()
 {
     bool onLeft = analogRead(QRD_TAPE_RIGHT) > qrdThresh;
     bool onRight = analogRead(QRD_TAPE_LEFT) > qrdThresh;

@@ -11,7 +11,7 @@
 class Driver {
 public:
     Driver();
-    void drive();
+    void drive(int state);
     void irDrive(IRDetector* irDetectorRight, IRDetector* irDetectorLeft);
     void initialize();
     void initializeErrors();
@@ -19,12 +19,12 @@ public:
     void setSpeed(int speed);
     void setSurfaceDirection();
     int getSurfaceDirection();
-    int getTapeFollowingErrorLeft();
-    int getTapeFollowingErrorLeftHill();
     void turnLeft();
     void turnRight();
     void ziplineDrive();
-    void driveToGate();
+    void driveToGate(int state);
+
+
 
 private:
     short K; // total error gain
@@ -41,6 +41,8 @@ private:
     int surfaceDirection; // direction which robot goes around tub (0 for CW, 1 for CCW)
 
     int getTapeFollowingError();
+    int getTapeFollowingErrorAgents();
+    int getTapeFollowingErrorHill();
 };
 
 #endif

@@ -65,7 +65,7 @@ void Controller::menuSetup()
 */
 void Controller::gateFollow()
 {
-    driver.driveToGate();
+    driver.driveToGate(state);
     driver.stop();
     IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
     IRDetector irDetectorL = IRDetector(TEN_KHZ_IR_PIN_L, ONE_KHZ_IR_PIN_L);
@@ -80,13 +80,6 @@ void Controller::gateFollow()
             gateOpen = true;
             LCD.print("Gate Open");
         }
-    }
-    while(true)
-    {
-        LCD.clear();
-        LCD.home();
-        LCD.print("driving");
-        driver.drive();
     }
     /*
     bool seenGate = false;
@@ -108,30 +101,6 @@ void Controller::gateFollow()
             }
         }
     }
-
-
-    /*ClawCollector clawCollector = ClawCollector();
-    while(state == GateFollow)
-    {
-
-        driver.drive();
-
-        if(clawCollector.detectedAgentTape())
-        {
-            driver.stop();
-            delay(1000);
-            for(int i = 0; i < 2000; ++i)
-            {
-                driver.drive();
-            }
-        }
-        else
-        {
-            driver.drive();
-        }
-
-        if(stopbutton()) state = MenuSetup - 1;
-    }
     */
 
 }
@@ -144,7 +113,7 @@ void Controller::tapeFollow()
     int initialTime = millis();
     while(millis() - initialTime < TAPE_FOLLOW_TIME)
     {
-        driver.drive();
+        driver.drive(state);
         if(stopbutton()) state = MenuSetup - 1;
     }
 }
@@ -159,7 +128,7 @@ void Controller::tapeFollowHill()
     driver.setSpeed(HILL_SPEED);
     while(millis() - initialTime < HILL_FOLLOW_TIME)
     {
-        driver.drive();
+        driver.drive(state);
         if(stopbutton()) state = MenuSetup - 1;
     }
 
@@ -182,12 +151,12 @@ void Controller::agentPickup()
     {
         while(!clawCollector.detectedAgentTape())
         {
-            driver.drive();
+            driver.drive(state);
         }
         clawCollector.grabAgent(agentAngles[i]);
         while(clawCollector.detectedAgentTape())
         {
-            driver.drive();
+            driver.drive(state);
         }
     }
     driver.stop();
