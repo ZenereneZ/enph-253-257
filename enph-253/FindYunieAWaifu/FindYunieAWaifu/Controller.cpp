@@ -79,7 +79,7 @@ void Controller::gateFollow()
             driver.drive();
         }
     }
-    
+
 
     /*ClawCollector clawCollector = ClawCollector();
     while(state == GateFollow)
@@ -145,6 +145,7 @@ void Controller::agentPickup()
 {
     //TODO don't forget to create a timer
     //also figure out which way to turn in circle
+
     ClawCollector clawCollector = ClawCollector();
     for(int i = 0; i < NUM_AGENTS; ++i)
     {
@@ -153,8 +154,12 @@ void Controller::agentPickup()
             driver.drive();
         }
         clawCollector.grabAgent();
+        while(clawCollector.detectedAgentTape())
+        {
+            driver.drive();
+        }
     }
-
+    driver.stop();
     //TODO Tape follow another semi circle
     //     until near far edge of circle
 
