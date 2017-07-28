@@ -21,6 +21,7 @@ public:
     int getSurfaceDirection();
     void turnLeft();
     void turnRight();
+    void driveStraight();
     void ziplineDrive();
     void driveToGate(int state);
 

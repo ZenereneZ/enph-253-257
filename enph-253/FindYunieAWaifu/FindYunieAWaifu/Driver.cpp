@@ -136,6 +136,11 @@ void Driver::turnLeft()
     }
 }
 
+void Driver::driveStraight()
+{
+    motor.speed(MOTOR_LEFT, 80);
+    motor.speed(MOTOR_RIGHT, 80);
+}
 void Driver::ziplineDrive()
 {
     for(int i = 0; i < 1000; ++i)

@@ -81,28 +81,6 @@ void Controller::gateFollow()
             LCD.print("Gate Open");
         }
     }
-    /*
-    bool seenGate = false;
-    bool gateOpen = false;
-
-    while(!gateOpen)
-    {
-        if(irDetectorL.getTenKHZ() > irDetectorL.getOneKHZ())
-        {
-            driver.stop();
-            seenGate = true;
-        }
-        else
-        {
-            driver.drive();
-            if(seenGate)
-            {
-                gateOpen = true;
-            }
-        }
-    }
-    */
-
 }
 
 /*
@@ -145,23 +123,26 @@ void Controller::agentPickup()
     //TODO don't forget to create a timer
     //also figure out which way to turn in circle
 
-    ClawCollector clawCollector = ClawCollector();
-    int agentAngles[] = {ARM_GRAB_HIGH, ARM_GRAB_LOW, ARM_GRAB_MIDDLE, ARM_GRAB_HIGH, ARM_GRAB_LOW, ARM_GRAB_MIDDLE};
-    for(int i = 0; i < NUM_AGENTS; ++i)
+    while(true)
     {
-        while(!clawCollector.detectedAgentTape())
+        ClawCollector clawCollector = ClawCollector();
+        int agentAngles[] = {ARM_GRAB_HIGH, ARM_GRAB_LOW, ARM_GRAB_MIDDLE, ARM_GRAB_HIGH, ARM_GRAB_LOW, ARM_GRAB_MIDDLE};
+        for(int i = 0; i < NUM_AGENTS; ++i)
         {
-            driver.drive(state);
+            while(!clawCollector.detectedAgentTape())
+            {
+                driver.drive(state);
+            }
+            driver.stop();
+            clawCollector.grabAgent(agentAngles[i]);
+            while(clawCollector.detectedAgentTape())
+            {
+                driver.drive(state);
+            }
         }
-        clawCollector.grabAgent(agentAngles[i]);
-        while(clawCollector.detectedAgentTape())
-        {
-            driver.drive(state);
-        }
+        driver.stop();
+        delay(5000);
     }
-    driver.stop();
-    delay(5000);
-
     //TODO Tape follow another semi circle
     //     until near far edge of circle
 
@@ -187,8 +168,15 @@ void Controller::freeFollow()
 */
 void Controller::zipline()
 {
-    while(true)
+    int initialTime = millis();
+    while(millis() - initialTime < COLLECTION_BOX_MOTOR_TIME)
     {
+        motor.speed(MOTOR_COLLECTION_BOX, COLLECTION_BOX_MOTOR_SPEED);
         if(stopbutton()) state = MenuSetup;
+    }
+    initialTime = millis();
+    while(millis() - initialTime < ZIPLINE_DRIVE_TIME)
+    {
+        driver.driveStraight();
     }
 }

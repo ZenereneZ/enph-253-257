@@ -29,6 +29,12 @@ bool ClawCollector::detectedAgentTape()
 {
     int agentL = analogRead(QRD_AGENT_TAPE_LEFT);
     int agentR = analogRead(QRD_AGENT_TAPE_RIGHT);
+    LCD.clear();
+    LCD.home();
+    LCD.print(agentL);
+    LCD.print(" ");
+    LCD.print(agentR);
+    delay(100);
     if(agentL > QRD_THRESHOLD)// || agentR > QRD_THRESHOLD)
     {
         return true;
