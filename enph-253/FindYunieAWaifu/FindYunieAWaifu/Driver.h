@@ -6,11 +6,13 @@
 #ifndef DRIVER_H
 #define DRIVER_H
 
+#include "IRDetector.h"
 
 class Driver {
 public:
     Driver();
     void drive();
+    void irDrive(IRDetector* irDetectorRight, IRDetector* irDetectorLeft);
     void initialize();
     void initializeErrors();
     void stop();
@@ -19,6 +21,10 @@ public:
     int getSurfaceDirection();
     int getTapeFollowingErrorLeft();
     int getTapeFollowingErrorLeftHill();
+    void turnLeft();
+    void turnRight();
+    void ziplineDrive();
+    void driveToGate();
 
 private:
     short K; // total error gain

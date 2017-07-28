@@ -55,7 +55,6 @@ void Controller::menuSetup()
     while(!startbutton())
     {
         driver.initialize();
-        driver.initializeErrors();
     }
     LCD.clear();
 }
@@ -66,17 +65,47 @@ void Controller::menuSetup()
 */
 void Controller::gateFollow()
 {
-
-    IRDetector irDetector = IRDetector();
-    while(state == GateFollow)
+    driver.driveToGate();
+    driver.stop();
+    IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
+    IRDetector irDetectorL = IRDetector(TEN_KHZ_IR_PIN_L, ONE_KHZ_IR_PIN_L);
+    bool gateOpen = false;
+    while(!gateOpen)
     {
-        if(irDetector.getTenKHZ() > irDetector.getOneKHZ())
+        LCD.clear();
+        LCD.home();
+        LCD.print("Gate Closed");
+        if(irDetectorL.getOneKHZ() > irDetectorL.getTenKHZ() && irDetectorR.getOneKHZ() > irDetectorR.getTenKHZ())
+        {
+            gateOpen = true;
+            LCD.print("Gate Open");
+        }
+    }
+    while(true)
+    {
+        LCD.clear();
+        LCD.home();
+        LCD.print("driving");
+        driver.drive();
+    }
+    /*
+    bool seenGate = false;
+    bool gateOpen = false;
+
+    while(!gateOpen)
+    {
+        if(irDetectorL.getTenKHZ() > irDetectorL.getOneKHZ())
         {
             driver.stop();
+            seenGate = true;
         }
         else
         {
             driver.drive();
+            if(seenGate)
+            {
+                gateOpen = true;
+            }
         }
     }
 
@@ -113,7 +142,7 @@ void Controller::gateFollow()
 void Controller::tapeFollow()
 {
     int initialTime = millis();
-    while(millis() - initialTime < 10000)
+    while(millis() - initialTime < TAPE_FOLLOW_TIME)
     {
         driver.drive();
         if(stopbutton()) state = MenuSetup - 1;
@@ -125,9 +154,10 @@ void Controller::tapeFollow()
 */
 void Controller::tapeFollowHill()
 {
-    driver.setSpeed(HILL_SPEED);
+    int initialTime = millis();
 
-    while(true)
+    driver.setSpeed(HILL_SPEED);
+    while(millis() - initialTime < HILL_FOLLOW_TIME)
     {
         driver.drive();
         if(stopbutton()) state = MenuSetup - 1;
@@ -174,9 +204,11 @@ void Controller::agentPickup()
 */
 void Controller::freeFollow()
 {
+    IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
+    IRDetector irDetectorL = IRDetector(TEN_KHZ_IR_PIN_L, ONE_KHZ_IR_PIN_L);
     while(true)
     {
-        if(stopbutton()) state = MenuSetup - 1;
+        driver.irDrive(&irDetectorR, &irDetectorL);
     }
 }
 /*

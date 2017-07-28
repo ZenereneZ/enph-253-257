@@ -92,9 +92,57 @@ void Driver::drive()
     lastError = error;
 }
 
+void Driver::irDrive(IRDetector* irDetectorLeft, IRDetector* irDetectorRight)
+{
+    int left = irDetectorLeft->getTenKHZ();
+    int right = irDetectorRight->getOneKHZ();
+    int correction = left - right;
+    motor.speed(MOTOR_LEFT, FREE_FOLLOW_SPEED - correction);
+    motor.speed(MOTOR_RIGHT, FREE_FOLLOW_SPEED + correction);
+}
+
 void Driver::stop()
 {
     motor.stop_all();
+}
+
+void Driver::turnRight()
+{
+    for(int i = 0; i < 1000; ++i)
+    {
+        motor.speed(MOTOR_LEFT, -100);
+        motor.speed(MOTOR_RIGHT, 100);
+    }
+}
+
+void Driver::turnLeft()
+{
+    for(int i = 0; i < 1000; ++i)
+    {
+        motor.speed(MOTOR_LEFT, 100);
+        motor.speed(MOTOR_RIGHT, -100);
+    }
+}
+
+void Driver::ziplineDrive()
+{
+    for(int i = 0; i < 1000; ++i)
+    {
+        motor.speed(MOTOR_LEFT, 100);
+        motor.speed(MOTOR_RIGHT, 100);
+    }
+}
+
+void Driver::driveToGate()
+{
+    int timer = millis();
+    while(millis() - timer < TIME_TO_GATE)
+    {
+        LCD.clear();
+        LCD.home();
+        LCD.print("Driving To Gate");
+        this->drive();
+    }
 }
 
 int Driver::getTapeFollowingError()
