@@ -79,6 +79,10 @@ void Controller::gateFollow()
         {
             gateOpen = true;
             LCD.print("Gate Open");
+            if(stopbutton()){
+                state = MenuSetup - 1;
+                return;
+            }
         }
     }
 }
@@ -92,7 +96,10 @@ void Controller::tapeFollow()
     while(millis() - initialTime < TAPE_FOLLOW_TIME)
     {
         driver.drive(state);
-        if(stopbutton()) state = MenuSetup - 1;
+        if(stopbutton()){
+            state = MenuSetup - 1;
+            return;
+        }
     }
 }
 
@@ -107,7 +114,10 @@ void Controller::tapeFollowHill()
     while(millis() - initialTime < HILL_FOLLOW_TIME)
     {
         driver.drive(state);
-        if(stopbutton()) state = MenuSetup - 1;
+        if(stopbutton()){
+            state = MenuSetup - 1;
+            return;
+        }
     }
 
     driver.setSpeed(REGULAR_SPEED);
@@ -120,9 +130,6 @@ void Controller::tapeFollowHill()
 */
 void Controller::agentPickup()
 {
-    //TODO don't forget to create a timer
-    //also figure out which way to turn in circle
-
     while(true)
     {
         ClawCollector clawCollector = ClawCollector();
@@ -143,8 +150,6 @@ void Controller::agentPickup()
         driver.stop();
         delay(5000);
     }
-    //TODO Tape follow another semi circle
-    //     until near far edge of circle
 
 }
 
@@ -156,9 +161,13 @@ void Controller::freeFollow()
 {
     IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
     IRDetector irDetectorL = IRDetector(TEN_KHZ_IR_PIN_L, ONE_KHZ_IR_PIN_L);
-    while(true)
-    {
-        driver.irDrive(&irDetectorR, &irDetectorL);
+    while(driver.irDrive(&irDetectorR, &irDetectorL))
+    {        
+        if(stopbutton())
+        {
+            state = MenuSetup - 1;
+            return;
+        }
     }
 }
 /*
@@ -172,7 +181,11 @@ void Controller::zipline()
     while(millis() - initialTime < COLLECTION_BOX_MOTOR_TIME)
     {
         motor.speed(MOTOR_COLLECTION_BOX, COLLECTION_BOX_MOTOR_SPEED);
-        if(stopbutton()) state = MenuSetup;
+        if(stopbutton())
+        {
+            state = MenuSetup - 1;
+            return;
+        }
     }
     initialTime = millis();
     while(millis() - initialTime < ZIPLINE_DRIVE_TIME)

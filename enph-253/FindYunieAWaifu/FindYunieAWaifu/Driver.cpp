@@ -104,15 +104,19 @@ void Driver::drive(int state)
     lastError = error;
 }
 
-void Driver::irDrive(IRDetector* irDetectorLeft, IRDetector* irDetectorRight)
+bool Driver::irDrive(IRDetector* irDetectorLeft, IRDetector* irDetectorRight)
 {
     int left = irDetectorLeft->getTenKHZ();
-    int right = irDetectorRight->getOneKHZ();
+    int right = irDetectorRight->getTenKHZ();
+    if(left > IR_ZIPLINE_THRESHOLD && right > IR_ZIPLINE_THRESHOLD) return true;
+    left = map(left, 0, 1023, 0, 255);
+    right = map(right, 0, 1023, 0, 255);
     int correction = left - right;
     motor.speed(MOTOR_LEFT, FREE_FOLLOW_SPEED - correction);
     motor.speed(MOTOR_RIGHT, FREE_FOLLOW_SPEED + correction);
-}
+    return false;
 
+}   
 void Driver::stop()
 {
     motor.stop_all();

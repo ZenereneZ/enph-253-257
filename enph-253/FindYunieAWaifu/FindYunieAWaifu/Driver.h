@@ -12,7 +12,7 @@ class Driver {
 public:
     Driver();
     void drive(int state);
-    void irDrive(IRDetector* irDetectorRight, IRDetector* irDetectorLeft);
+    bool irDrive(IRDetector* irDetectorRight, IRDetector* irDetectorLeft);
     void initialize();
     void initializeErrors();
     void stop();

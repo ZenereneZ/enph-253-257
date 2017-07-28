@@ -39,6 +39,7 @@ private:
     void agentPickup();
     void freeFollow();
     void zipline();
+    bool checkStopped();
 };
 
 #endif
