@@ -67,13 +67,13 @@ void Driver::initialize()
 */
 void Driver::drive()
 {
-    int error = getTapeFollowingError();
+    int error = getTapeFollowingErrorLeftHill();
     if (error != lastError) {
         lastErrorBeforeChange = lastError;
         stepsLastError = stepsCurrentError;
         stepsCurrentError = 1;
     }
-    //ensures sustained error doesn't get too large 
+    //ensures sustained error doesn't get too large
     sumError = max(min(sumError, HIGH_LIMIT), LOW_LIMIT);
     sumError += error;
 
@@ -82,9 +82,9 @@ void Driver::drive()
     int derivative =  (float)Kd*(error-lastErrorBeforeChange)/(stepsLastError + stepsCurrentError);
 
     int integral = Ki * sumError;
-    
+
     int corr = K * (positional + derivative + integral);
-    
+
     motor.speed(MOTOR_LEFT, max(min(speed - corr, MAX_SPEED), MIN_SPEED));
     motor.speed(MOTOR_RIGHT, max(min(speed + corr, MAX_SPEED), MIN_SPEED));
 
@@ -107,6 +107,40 @@ int Driver::getTapeFollowingError()
     else return (lastError>0) ? ERROR_RIGHT_FULL : ERROR_LEFT_FULL;
 }
 
+int Driver::getTapeFollowingErrorLeft()
+{
+    bool onLeft = analogRead(QRD_TAPE_RIGHT) > qrdThresh;
+    bool onRight = analogRead(QRD_TAPE_LEFT) > qrdThresh;
+    if (onLeft && onRight) return 0;
+    else if (onLeft && !onRight) return ERROR_LEFT_HALF;
+    else if (!onLeft && onRight) return 0;
+    else return ERROR_LEFT_HALF;
+}
+int Driver::getTapeFollowingErrorLeftHill()
+{
+    bool onLeft = analogRead(QRD_TAPE_RIGHT) > qrdThresh;
+    bool onRight = analogRead(QRD_TAPE_LEFT) > qrdThresh;
+    if (onLeft && onRight) return ERROR_LEFT_HALF;
+    else if (onLeft && !onRight) return ERROR_LEFT_HALF;
+    else if (!onLeft && onRight)
+    {
+        return 0;
+    }
+    else
+    {
+        if (lastError>0)
+        {
+            return ERROR_RIGHT_FULL;
+        }
+        else if(lastError < 0){
+            return ERROR_LEFT_FULL;
+        }
+    }
+    return ERROR_RIGHT_HALF;
+}
+
+
+
 void Driver::setSpeed(int speed)
 {
     this->speed = speed;
@@ -128,7 +162,7 @@ void Driver::setSurfaceDirection()
       }
       while (startbutton()){
         surfaceDirection = 1;
-        buttonPressed = true; 
+        buttonPressed = true;
       }
       if (buttonPressed) break;
     }
@@ -138,4 +172,3 @@ int Driver::getSurfaceDirection()
 {
     return surfaceDirection;
 }
-

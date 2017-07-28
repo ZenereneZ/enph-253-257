@@ -26,7 +26,7 @@ bool ClawCollector::detectedAgentTape()
 {
     int agentL = analogRead(QRD_AGENT_TAPE_LEFT);
     int agentR = analogRead(QRD_AGENT_TAPE_RIGHT);
-    if(agentL > QRD_THRESHOLD || agentR > QRD_THRESHOLD)
+    if(agentL > QRD_THRESHOLD)// || agentR > QRD_THRESHOLD)
     {
         return true;
     }
@@ -73,4 +73,3 @@ void ClawCollector::closeHand()
 {
     RCServo2.write(CLOSE_HAND_ANGLE);
 }
-

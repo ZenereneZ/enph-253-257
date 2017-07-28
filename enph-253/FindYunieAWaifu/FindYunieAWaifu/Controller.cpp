@@ -8,7 +8,7 @@
 Controller::Controller()
 {
     driver = Driver();
-    state = MenuSetup;
+    state = GateFollow;
 }
 
 /*
@@ -66,6 +66,7 @@ void Controller::menuSetup()
 */
 void Controller::gateFollow()
 {
+
     IRDetector irDetector = IRDetector();
     while(state == GateFollow)
     {
@@ -78,6 +79,31 @@ void Controller::gateFollow()
             driver.drive();
         }
     }
+    
+
+    /*ClawCollector clawCollector = ClawCollector();
+    while(state == GateFollow)
+    {
+
+        driver.drive();
+
+        if(clawCollector.detectedAgentTape())
+        {
+            driver.stop();
+            delay(1000);
+            for(int i = 0; i < 2000; ++i)
+            {
+                driver.drive();
+            }
+        }
+        else
+        {
+            driver.drive();
+        }
+
+        if(stopbutton()) state = MenuSetup - 1;
+    }
+    */
 
 }
 
