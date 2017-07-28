@@ -23,7 +23,7 @@
 
 #define QRD_THRESHOLD 100
 
-#define REGULAR_SPEED 120
+#define REGULAR_SPEED 80
 #define HILL_SPEED 100
 #define MAX_SPEED 255
 #define MIN_SPEED -255
@@ -40,13 +40,26 @@
 
 #define NUM_AGENTS 6
 
-#define ARM_DELAY 0.5
-#define BASE_DELAY 0.7
-#define MIN_ARM_DELAY 3
 #define MIN_BASE_DELAY 10
 #define CLAW_DELAY 250
 
 #define HIGH_LIMIT 5
 #define LOW_LIMIT -5
+
+#define ARM_DELAY 0.2
+#define BASE_DELAY 0.7
+#define MIN_ARM_DELAY 3
+#define LOW_LIMIT -5
+
+#define ARM_MAX 130
+#define ARM_GRAB_TUNING 20
+#define ARM_BOX 20
+
+#define ARM_GRAB_HIGH 30
+#define ARM_GRAB_MIDDLE 25
+#define ARM_GRAB_LOW 20
+
+#define BASE_REST 90
+#define BASE_GRAB 150
 
 #endif

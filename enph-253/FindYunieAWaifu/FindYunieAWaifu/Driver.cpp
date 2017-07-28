@@ -67,7 +67,7 @@ void Driver::initialize()
 */
 void Driver::drive()
 {
-    int error = getTapeFollowingError();
+    int error = getTapeFollowingErrorLeft();
     if (error != lastError) {
         lastErrorBeforeChange = lastError;
         stepsLastError = stepsCurrentError;

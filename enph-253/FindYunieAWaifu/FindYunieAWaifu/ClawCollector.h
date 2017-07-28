@@ -5,7 +5,7 @@ class ClawCollector
 {
 public:
     ClawCollector();
-    void grabAgent();
+    void grabAgent(int agentAngle);
     bool detectedAgentTape();
 
 private:

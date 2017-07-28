@@ -6,20 +6,23 @@ ClawCollector::ClawCollector()
 {
     baseAngle = STARTING_BASE_ANGLE;
     armAngle = STARTING_ARM_ANGLE;
+    RCServo0.write(baseAngle);
+    RCServo1.write(armAngle);
 }
 
-void ClawCollector::grabAgent()
+void ClawCollector::grabAgent(int agentAngle)
 {
     openHand();
-    turnArm(90, ARM_DELAY, MIN_ARM_DELAY);
-    turnBase(170, BASE_DELAY, MIN_BASE_DELAY);
-    turnArm(30, ARM_DELAY, MIN_ARM_DELAY);
+    turnArm(ARM_MAX, ARM_DELAY, MIN_ARM_DELAY);
+    turnBase(BASE_GRAB, BASE_DELAY, MIN_BASE_DELAY);
+    turnArm(agentAngle, ARM_DELAY, MIN_ARM_DELAY);
     closeHand();
     delay(CLAW_DELAY);
-    turnArm(90, ARM_DELAY, MIN_ARM_DELAY);
-    turnBase(90, BASE_DELAY, MIN_BASE_DELAY);
-    turnArm(90, ARM_DELAY, MIN_ARM_DELAY);
+    turnArm(ARM_MAX, ARM_DELAY, MIN_ARM_DELAY);
+    turnBase(BASE_REST, BASE_DELAY, MIN_BASE_DELAY);
+    turnArm(ARM_MAX, ARM_DELAY, MIN_ARM_DELAY);
     openHand();
+    delay(CLAW_DELAY);
 }
 
 bool ClawCollector::detectedAgentTape()
