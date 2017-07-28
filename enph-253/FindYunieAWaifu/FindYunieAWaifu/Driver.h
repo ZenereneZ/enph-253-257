@@ -20,6 +20,7 @@ public:
     void turnLeft();
     void turnRight();
     void ziplineDrive();
+    void driveToGate();
 
 private:
     short K; // total error gain

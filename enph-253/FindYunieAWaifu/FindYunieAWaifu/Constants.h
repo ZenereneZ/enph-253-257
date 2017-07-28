@@ -45,5 +45,7 @@
 #define TAPE_FOLLOW_TIME 4000
 #define HILL_FOLLOW_TIME 2000
 
+#define TIME_TO_GATE 5000
+
 
 #endif

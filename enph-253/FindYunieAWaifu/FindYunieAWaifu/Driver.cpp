@@ -128,7 +128,17 @@ void Driver::ziplineDrive()
     }
 }
 
-
+void Driver::driveToGate()
+{
+    int timer = millis();
+    while(millis() - timer < TIME_TO_GATE)
+    {
+        LCD.clear();
+        LCD.home();
+        LCD.print("Driving To Gate");
+        this->drive();
+    }
+}
 
 int Driver::getTapeFollowingError()
 {
