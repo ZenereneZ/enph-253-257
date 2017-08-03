@@ -1,14 +1,18 @@
 #include "Controller.h"
-#include "ClawCollector.h"
 #include "IRDetector.h"
 #include "Constants.h"
 #include "Driver.h"
+#include "Utils.h"
 #include <phys253.h>
+
+using namespace Utils;
 
 Controller::Controller()
 {
     driver = Driver();
-    state = AgentPickup;
+    clawCollector = ClawCollector();
+    state = INITIAL_STATE;
+    direction = Left;
 }
 
 /*
@@ -50,13 +54,13 @@ void Controller::execute()
 */
 void Controller::menuSetup()
 {
-    driver.stop();
-    driver.setSurfaceDirection();
-    while(!startbutton())
+    while(!digitalRead(0))
     {
-        driver.initialize();
+        delay(200);
+        LCD.clear();
+        LCD.home();
+        LCD.print("Menu Setup");
     }
-    LCD.clear();
 }
 
 /*
@@ -74,16 +78,13 @@ void Controller::gateFollow()
     {
         LCD.clear();
         LCD.home();
-        LCD.print("Gate Closed");
+        LCD.print("2: GateFollow");
+        delay(300);
         if(irDetectorL.getOneKHZ() > irDetectorL.getTenKHZ() && irDetectorR.getOneKHZ() > irDetectorR.getTenKHZ())
         {
             gateOpen = true;
-            LCD.print("Gate Open");
-            if(stopbutton()){
-                state = MenuSetup - 1;
-                return;
-            }
         }
+        if(stopIfButtonPressed()) return;
     }
 }
 
@@ -92,15 +93,16 @@ void Controller::gateFollow()
 */
 void Controller::tapeFollow()
 {
-    int initialTime = millis();
-    while(millis() - initialTime < TAPE_FOLLOW_TIME)
+    /*long initialTime = millis();
+    long timeToHill = TIME_TO_HILL;
+    while(millis() - initialTime < timeToHill)
     {
+        LCD.clear();
+        LCD.home();
+        LCD.print("3: Tape Follow");
         driver.drive(state);
-        if(stopbutton()){
-            state = MenuSetup - 1;
-            return;
-        }
-    }
+        if(stopIfButtonPressed()) return;
+    }*/
 }
 
 /*
@@ -108,19 +110,24 @@ void Controller::tapeFollow()
 */
 void Controller::tapeFollowHill()
 {
-    int initialTime = millis();
-
     driver.setSpeed(HILL_SPEED);
-    while(millis() - initialTime < HILL_FOLLOW_TIME)
+    LCD.clear();
+    LCD.home();
+    LCD.print("4: Hill Following");
+    while(true)
     {
         driver.drive(state);
-        if(stopbutton()){
-            state = MenuSetup - 1;
-            return;
+        if(clawCollector.detectAgentTapeBoth())
+        {
+            break;
         }
+        if(stopIfButtonPressed()) return;
     }
-
-    driver.setSpeed(REGULAR_SPEED);
+    driver.powerBrake();
+    driver.stop();
+    delay(1000);
+    driver.turnLeft();
+    delay(1000);
 }
 
 /*
@@ -130,27 +137,36 @@ void Controller::tapeFollowHill()
 */
 void Controller::agentPickup()
 {
+    /*driver.setSpeed(REGULAR_SPEED);
+    driver.setKp(70);
     while(true)
     {
-        ClawCollector clawCollector = ClawCollector();
-        int agentAngles[] = {ARM_GRAB_HIGH, ARM_GRAB_LOW, ARM_GRAB_MIDDLE, ARM_GRAB_HIGH, ARM_GRAB_LOW, ARM_GRAB_MIDDLE};
+        LCD.clear();
+        LCD.home();
+        LCD.print("5: AgentPickup");
+        int agentAngles[] = {ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH, ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH};
         for(int i = 0; i < NUM_AGENTS; ++i)
         {
-            while(!clawCollector.detectedAgentTape())
+            while(!clawCollector.detectAgentTapeRight())
             {
                 driver.drive(state);
+                if(stopIfButtonPressed()) return;
             }
             driver.stop();
             clawCollector.grabAgent(agentAngles[i]);
-            while(clawCollector.detectedAgentTape())
+            while(clawCollector.detectAgentTapeRight())
             {
                 driver.drive(state);
+                if(stopIfButtonPressed()) return;
             }
+            if(stopIfButtonPressed()) return;
         }
         driver.stop();
-        delay(5000);
+    }*/
+    while(true)
+    {
+        clawCollector.grabAgent(ARM_GRAB_HIGH);
     }
-
 }
 
 /*
@@ -161,15 +177,16 @@ void Controller::freeFollow()
 {
     IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
     IRDetector irDetectorL = IRDetector(TEN_KHZ_IR_PIN_L, ONE_KHZ_IR_PIN_L);
-    while(driver.irDrive(&irDetectorR, &irDetectorL))
-    {        
-        if(stopbutton())
-        {
-            state = MenuSetup - 1;
-            return;
-        }
+    while(true)
+    {
+        driver.irDrive(&irDetectorR, &irDetectorL);
+        LCD.clear();
+        LCD.home();
+        LCD.print("6: Free Following");
+        if(stopIfButtonPressed()) return;
     }
 }
+
 /*
 * zipline - puts collection box on zipline
 *         - positions towards zipline
@@ -177,19 +194,28 @@ void Controller::freeFollow()
 */
 void Controller::zipline()
 {
-    int initialTime = millis();
+    long initialTime = millis();
     while(millis() - initialTime < COLLECTION_BOX_MOTOR_TIME)
     {
+        LCD.clear();
+        LCD.home();
+        LCD.print("7: Zipline");
         motor.speed(MOTOR_COLLECTION_BOX, COLLECTION_BOX_MOTOR_SPEED);
-        if(stopbutton())
-        {
-            state = MenuSetup - 1;
-            return;
-        }
+        if(stopIfButtonPressed()) return;
     }
     initialTime = millis();
     while(millis() - initialTime < ZIPLINE_DRIVE_TIME)
     {
         driver.driveStraight();
     }
+}
+
+bool Controller::stopIfButtonPressed()
+{
+    if(!digitalRead(0)){
+        state = MenuSetup - 1;
+        driver.stop();
+        return true;
+    }
+    return false;
 }

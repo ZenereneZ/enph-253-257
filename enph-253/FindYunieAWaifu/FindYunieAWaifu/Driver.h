@@ -17,15 +17,13 @@ public:
     void initializeErrors();
     void stop();
     void setSpeed(int speed);
-    void setSurfaceDirection();
-    int getSurfaceDirection();
     void turnLeft();
     void turnRight();
     void driveStraight();
     void ziplineDrive();
     void driveToGate(int state);
-
-
+    void setKp(int kp);
+    void powerBrake();
 
 private:
     short K; // total error gain
@@ -39,11 +37,13 @@ private:
     int stepsCurrentError; // steps currently on current error
     int stepsLastError; // steps on previous error
     int sumError; // sustained error
-    int surfaceDirection; // direction which robot goes around tub (0 for CW, 1 for CCW)
+    int direction; // surface direction robot is on
 
     int getTapeFollowingError();
-    int getTapeFollowingErrorAgents();
-    int getTapeFollowingErrorHill();
+    int getTapeFollowingErrorAgentsLeft();
+    int getTapeFollowingErrorAgentsRight();
+    int getTapeFollowingErrorHillLeft();
+    int getTapeFollowingErrorHillRight();
 };
 
 #endif

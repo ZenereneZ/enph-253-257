@@ -9,6 +9,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include "ClawCollector.h"
 #include "Driver.h"
 
 class Controller
@@ -18,20 +19,10 @@ public:
     void execute();
 
 private:
-    enum State
-    {
-      MenuSetup,
-      GateFollow,
-      TapeFollow,
-      TapeFollowHill,
-      AgentPickup,
-      FreeFollow,
-      Zipline
-    };
-
     int state;
-
+    ClawCollector clawCollector;
     Driver driver;
+    bool direction;
     void menuSetup();
     void gateFollow();
     void tapeFollow();
@@ -39,7 +30,8 @@ private:
     void agentPickup();
     void freeFollow();
     void zipline();
-    bool checkStopped();
+    bool stopIfButtonPressed();
+    void resetAll();
 };
 
 #endif

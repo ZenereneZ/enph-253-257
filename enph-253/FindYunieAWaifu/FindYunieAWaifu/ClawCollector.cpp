@@ -25,22 +25,35 @@ void ClawCollector::grabAgent(int agentAngle)
     delay(CLAW_DELAY);
 }
 
-bool ClawCollector::detectedAgentTape()
+bool ClawCollector::detectAgentTapeBoth()
 {
     int agentL = analogRead(QRD_AGENT_TAPE_LEFT);
     int agentR = analogRead(QRD_AGENT_TAPE_RIGHT);
-    LCD.clear();
-    LCD.home();
-    LCD.print(agentL);
-    LCD.print(" ");
-    LCD.print(agentR);
-    delay(100);
-    if(agentL > QRD_THRESHOLD)// || agentR > QRD_THRESHOLD)
+    if(agentL > 200 && agentR > 200)
     {
         return true;
     }
     return false;
+}
+bool ClawCollector::detectAgentTapeEither()
+{
+    int agentL = analogRead(QRD_AGENT_TAPE_LEFT);
+    int agentR = analogRead(QRD_AGENT_TAPE_RIGHT);
+    if(agentL > QRD_THRESHOLD || agentR > QRD_THRESHOLD)
+    {
+        return true;
+    }
+    return false;
+}
 
+bool ClawCollector::detectAgentTapeLeft()
+{
+    return analogRead(QRD_AGENT_TAPE_LEFT) > QRD_THRESHOLD;
+}
+
+bool ClawCollector::detectAgentTapeRight()
+{
+    return analogRead(QRD_AGENT_TAPE_RIGHT) > QRD_THRESHOLD;
 }
 
 void ClawCollector::turnBase(int angle, double delayFactor, int minDelay)

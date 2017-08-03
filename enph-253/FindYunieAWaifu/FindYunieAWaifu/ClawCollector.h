@@ -6,7 +6,10 @@ class ClawCollector
 public:
     ClawCollector();
     void grabAgent(int agentAngle);
-    bool detectedAgentTape();
+    bool detectAgentTapeBoth();
+    bool detectAgentTapeLeft();
+    bool detectAgentTapeRight();
+    bool detectAgentTapeEither();
 
 private:
     int baseAngle;
