@@ -53,13 +53,13 @@ void Controller::menuSetup()
 {
     while(!digitalRead(0))
     {
-        delay(200);
+        delay(500);
         LCD.clear();
         LCD.home();
         LCD.print("Menu Setup");
     }
     clawCollector.setStartingPosition();
-    delay(1000);
+    delay(500);
 }
 
 /*
@@ -95,17 +95,14 @@ void Controller::gateFollow()
 */
 void Controller::tapeFollowHill()
 {
+    if(stopIfButtonPressed()) return;
     driver.setSpeed(HILL_SPEED);
     LCD.clear();
     LCD.home();
     LCD.print("4: Hill Following");
-    while(true)
+    while(!clawCollector.detectAgentTapeBoth())
     {
         driver.drive(state);
-        if(clawCollector.detectAgentTapeBoth())
-        {
-            break;
-        }
         if(stopIfButtonPressed()) return;
     }
     driver.powerBrake();
@@ -123,42 +120,40 @@ void Controller::tapeFollowHill()
 */
 void Controller::agentPickup()
 {
-
+    if(stopIfButtonPressed()) return;
     driver.setSpeed(REGULAR_SPEED);
     driver.setKp(70);
-    while(true)
+    LCD.clear();
+    LCD.home();
+    LCD.print("5: AgentPickup");
+    while(clawCollector.detectAgentTapeRight())
     {
-        LCD.clear();
-        LCD.home();
-        LCD.print("5: AgentPickup");
+        driver.drive(state);
+        if(stopIfButtonPressed()) return;
+    }
+    int armAngles[] = {ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH, ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH};
+    int baseAngles[] = {FIRST_GRAB, SECOND_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB};
+    for(int i = 0; i < NUM_AGENTS; ++i)
+    {
+        while(!clawCollector.detectAgentTapeRight())
+        {
+            driver.drive(state);
+            if(stopIfButtonPressed()) return;
+        }
+        driver.stop();
+        clawCollector.grabAgent(baseAngles[i], armAngles[i]);
         while(clawCollector.detectAgentTapeRight())
         {
             driver.drive(state);
             if(stopIfButtonPressed()) return;
         }
-        int armAngles[] = {ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH, ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH};
-        int baseAngles[] = {FIRST_GRAB, SECOND_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB};
-        for(int i = 0; i < NUM_AGENTS; ++i)
-        {
-            while(!clawCollector.detectAgentTapeRight())
-            {
-                driver.drive(state);
-                if(stopIfButtonPressed()) return;
-            }
-            driver.stop();
-            clawCollector.grabAgent(baseAngles[i], armAngles[i]);
-            while(clawCollector.detectAgentTapeRight())
-            {
-                driver.drive(state);
-                if(stopIfButtonPressed()) return;
-            }
-            if(stopIfButtonPressed()) return;
-        }
+        if(stopIfButtonPressed()) return;
     }
     if(stopIfButtonPressed()) return;
+
+
     clawCollector.ziplineMove();
-    driver.setSpeed(REGULAR_SPEED);
-    driver.setKp(70);
+
     while(!clawCollector.detectAgentTapeRight())
     {
         driver.drive(state);
@@ -179,80 +174,17 @@ void Controller::agentPickup()
 
 /*
 * freeFollow - follow without tape towards IR source.
-*            - What to do here?? Encoders??
+*
 */
 void Controller::freeFollow()
 {
+    if(stopIfButtonPressed()) return;
 
-        if(stopIfButtonPressed()) return;
-        driver.setSpeed(60);
-        long stuff = millis();
-        while(millis() - stuff < 1000)
-        {
-            driver.driveStraight();
-        }
-        driver.turnRight60();
-        stuff = millis();
-        while(millis() - stuff < 1000)
-        {
-            driver.driveStraight();
-        }
-        driver.driveStraightUntilEdge();
-
-
-
-        long collectionTime = millis();
-        while(millis() - collectionTime < 7000)
-        {
-            motor.speed(MOTOR_COLLECTION_BOX, 255);
-        }
-        motor.speed(MOTOR_COLLECTION_BOX, 0);
-
-        driver.turnRight();
-        driver.turnRight45();
-
-
-        collectionTime = millis();
-        while(millis() - collectionTime < 5000)
-        {
-            driver.driveStraight();
-        }
-
-
-
-        collectionTime = millis();
-        while(millis() - collectionTime < 4500)
-        {
-            motor.speed(MOTOR_COLLECTION_BOX, -255);
-        }
-        motor.speed(MOTOR_COLLECTION_BOX, 0);
-
-
-        while(true)
-        {
-            if(stopIfButtonPressed()) return;
-            delay(1000);
-        }
-
-        /*IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
-        IRDetector irDetectorL = IRDetector(TEN_KHZ_IR_PIN_L, ONE_KHZ_IR_PIN_L);
-
-        while(!driver.irDrive(&irDetectorR, &irDetectorL))
-        {
-            if(stopIfButtonPressed()) return;
-        }
-
-        driver.turnLeft20();
-
-        long initialTime = millis();
-
-        while(millis() - initialTime < 4000)
-        {
-            if(stopIfButtonPressed()) return;
-            driver.driveStraight();
-        }
-        driver.stop();*/
-
+    driver.setSpeed(60);
+    driver.driveStraightTime(INITIAL_EDGE_DRIVE_TIME);
+    driver.turnRightTime(400);
+    driver.driveStraightTime(INITIAL_EDGE_DRIVE_TIME);
+    driver.driveStraightUntilEdge();
 }
 
 /*
@@ -262,20 +194,20 @@ void Controller::freeFollow()
 */
 void Controller::zipline()
 {
-    driver.setSpeed(REGULAR_SPEED);
-    long initialTime = millis();
-    while(millis() - initialTime < COLLECTION_BOX_MOTOR_TIME)
+    LCD.clear();
+    LCD.home();
+    LCD.print("7: Zipline");
+
+
+    driver.raiseCollectionBox();
+    driver.turnRightTime(1100);
+    driver.driveStraightTime(3000);
+    driver.lowerCollectionBox();
+    
+    while(true)
     {
-        LCD.clear();
-        LCD.home();
-        LCD.print("7: Zipline");
-        motor.speed(MOTOR_COLLECTION_BOX, COLLECTION_BOX_MOTOR_SPEED);
         if(stopIfButtonPressed()) return;
-    }
-    initialTime = millis();
-    while(millis() - initialTime < ZIPLINE_DRIVE_TIME)
-    {
-        driver.driveStraight();
+        delay(500);
     }
 }
 

@@ -107,90 +107,64 @@ void Driver::drive(int state)
     lastError = error;
 }
 
-bool Driver::irDrive(IRDetector* irDetectorLeft, IRDetector* irDetectorRight)
-{
-    int left = irDetectorLeft->getTenKHZ();
-    int right = irDetectorRight->getTenKHZ();
-    if(left > IR_ZIPLINE_THRESHOLD && right > IR_ZIPLINE_THRESHOLD) return true;
-    left = map(left, 0, MAX_VOLTAGE, 0, 50);
-    right = map(right, 0, MAX_VOLTAGE, 0, 50);
-    int correction = left - right;
-    motor.speed(MOTOR_LEFT, speed + correction);
-    motor.speed(MOTOR_RIGHT, speed - correction);
-    return false;
-
-}
 void Driver::stop()
 {
     motor.stop_all();
 }
+
 void Driver::turnLeft()
 {
-    long initialTime = millis();
+    long timer = millis();
 
-    while(millis() - initialTime < 800)
+    while(millis() - timer < 800)
     {
-        motor.speed(MOTOR_RIGHT, 100);
-        motor.speed(MOTOR_LEFT, -100);
+        motor.speed(MOTOR_RIGHT, TURNING_SPEED);
+        motor.speed(MOTOR_LEFT, -TURNING_SPEED);
     }
     this->stop();
 }
 
 void Driver::turnRight()
 {
-    long initialTime = millis();
+    long timer = millis();
 
-    while(millis() - initialTime < 800)
+    while(millis() - timer < 800)
     {
-        motor.speed(MOTOR_RIGHT, -100);
-        motor.speed(MOTOR_LEFT, 100);
+        motor.speed(MOTOR_RIGHT, -TURNING_SPEED);
+        motor.speed(MOTOR_LEFT, TURNING_SPEED);
     }
     this->stop();
 }
 
-void Driver::turnLeft45()
+void Driver::turnLeftTime(int ms)
 {
-    long initialTime = millis();
-
-    while(millis() - initialTime < 500)
+    long timer = millis();
+    while(millis() - timer < ms)
     {
-        motor.speed(MOTOR_RIGHT, 100);
-        motor.speed(MOTOR_LEFT, -100);
+        motor.speed(MOTOR_RIGHT, TURNING_SPEED);
+        motor.speed(MOTOR_LEFT, -TURNING_SPEED);
     }
 }
 
-void Driver::turnLeft20()
+void Driver::turnRightTime(int ms)
 {
-    long initialTime = millis();
-
-    while(millis() - initialTime < 200)
+    long timer = millis();
+    while(millis() - timer < ms)
     {
-        motor.speed(MOTOR_RIGHT, 100);
-        motor.speed(MOTOR_LEFT, -100);
-    }
-}
-void Driver::turnRight60()
-{
-    long initialTime = millis();
-
-    while(millis() - initialTime < 400)
-    {
-        motor.speed(MOTOR_RIGHT, -100);
-        motor.speed(MOTOR_LEFT, 100);
-    }
-}
-void Driver::turnRight45()
-{
-    long initialTime = millis();
-
-    while(millis() - initialTime < 300)
-    {
-        motor.speed(MOTOR_RIGHT, -100);
-        motor.speed(MOTOR_LEFT, 100);
+        motor.speed(MOTOR_RIGHT, -TURNING_SPEED);
+        motor.speed(MOTOR_LEFT, TURNING_SPEED);
     }
 }
 
-
+void Driver::driveStraightTime(int ms)
+{
+    long timer = millis();
+    while(millis() - timer < ms)
+    {
+        motor.speed(MOTOR_RIGHT, speed);
+        motor.speed(MOTOR_LEFT, speed);
+    }
+}
 
 void Driver::turnLeftUntilQRD()
 {
@@ -231,22 +205,10 @@ void Driver::powerBrake()
     }
     this->stop();
 }
-
-void Driver::ziplineDrive()
-{
-    for(int i = 0; i < 1000; ++i)
-    {
-        motor.speed(MOTOR_LEFT, 100);
-        motor.speed(MOTOR_RIGHT, 100);
-    }
-    this->stop();
-}
-
 void Driver::driveToGate(int state)
 {
-    long initialTime = millis();
-    long timeToGate = TIME_TO_GATE;
-    while(millis() - initialTime < timeToGate)
+    long timer = millis();
+    while(millis() - timer < TIME_TO_GATE)
     {
         LCD.clear();
         LCD.home();
@@ -298,6 +260,7 @@ int Driver::getTapeFollowingErrorHillLeft()
     else if(lastError < 0) return ERROR_LEFT_FULL;
     else return ERROR_RIGHT_FULL;
 }
+
 int Driver::getTapeFollowingErrorHillRight()
 {
     bool onLeft = analogRead(QRD_TAPE_LEFT) > qrdThresh;
@@ -309,6 +272,21 @@ int Driver::getTapeFollowingErrorHillRight()
     else if (lastError < 0) return ERROR_LEFT_FULL;
     else return ERROR_LEFT_FULL;
 }
+
+void Driver::raiseCollectionBox()
+{
+    long timer = millis();
+    while(millis() - timer < COLLECTION_BOX_UP_MOTOR_TIME) motor.speed(MOTOR_COLLECTION_BOX, 255);
+    motor.speed(MOTOR_COLLECTION_BOX, 0);
+}
+
+void Driver::lowerCollectionBox()
+{
+    long timer = millis();
+    while(millis() - timer < COLLECTION_BOX_DOWN_MOTOR_TIME) motor.speed(MOTOR_COLLECTION_BOX, -255);
+    motor.speed(MOTOR_COLLECTION_BOX, 0);
+}
+
 void Driver::driveStraightUntilEdge()
 {
     while(analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD && analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD)
