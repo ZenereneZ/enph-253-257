@@ -25,7 +25,6 @@ private:
     bool direction;
     void menuSetup();
     void gateFollow();
-    void tapeFollow();
     void tapeFollowHill();
     void agentPickup();
     void freeFollow();

@@ -17,9 +17,16 @@ public:
     void initializeErrors();
     void stop();
     void setSpeed(int speed);
+    void turnLeft45();
+    void turnRight60();
+    void turnRight45();
+    void turnLeft20();
     void turnLeft();
     void turnRight();
+    void turnLeftUntilQRD();
+    void turnRightUntilQRD();
     void driveStraight();
+    void driveStraightUntilEdge();
     void ziplineDrive();
     void driveToGate(int state);
     void setKp(int kp);

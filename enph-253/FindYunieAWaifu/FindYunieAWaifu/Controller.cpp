@@ -29,9 +29,6 @@ void Controller::execute()
         case(GateFollow):
             gateFollow();
             break;
-        case(TapeFollow):
-            tapeFollow();
-            break;
         case(TapeFollowHill):
             tapeFollowHill();
             break;
@@ -61,6 +58,8 @@ void Controller::menuSetup()
         LCD.home();
         LCD.print("Menu Setup");
     }
+    clawCollector.setStartingPosition();
+    delay(1000);
 }
 
 /*
@@ -69,6 +68,8 @@ void Controller::menuSetup()
 */
 void Controller::gateFollow()
 {
+    if(stopIfButtonPressed()) return;
+    driver.setSpeed(REGULAR_SPEED);
     driver.driveToGate(state);
     driver.stop();
     IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
@@ -79,30 +80,14 @@ void Controller::gateFollow()
         LCD.clear();
         LCD.home();
         LCD.print("2: GateFollow");
-        delay(300);
+
         if(irDetectorL.getOneKHZ() > irDetectorL.getTenKHZ() && irDetectorR.getOneKHZ() > irDetectorR.getTenKHZ())
         {
             gateOpen = true;
+            driver.turnRightUntilQRD();
         }
         if(stopIfButtonPressed()) return;
     }
-}
-
-/*
-* tapeFollow - regular tape following at normal pace
-*/
-void Controller::tapeFollow()
-{
-    /*long initialTime = millis();
-    long timeToHill = TIME_TO_HILL;
-    while(millis() - initialTime < timeToHill)
-    {
-        LCD.clear();
-        LCD.home();
-        LCD.print("3: Tape Follow");
-        driver.drive(state);
-        if(stopIfButtonPressed()) return;
-    }*/
 }
 
 /*
@@ -126,7 +111,8 @@ void Controller::tapeFollowHill()
     driver.powerBrake();
     driver.stop();
     delay(1000);
-    driver.turnLeft();
+    driver.turnLeftUntilQRD();
+    driver.stop();
     delay(1000);
 }
 
@@ -137,14 +123,21 @@ void Controller::tapeFollowHill()
 */
 void Controller::agentPickup()
 {
-    /*driver.setSpeed(REGULAR_SPEED);
+
+    driver.setSpeed(REGULAR_SPEED);
     driver.setKp(70);
     while(true)
     {
         LCD.clear();
         LCD.home();
         LCD.print("5: AgentPickup");
-        int agentAngles[] = {ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH, ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH};
+        while(clawCollector.detectAgentTapeRight())
+        {
+            driver.drive(state);
+            if(stopIfButtonPressed()) return;
+        }
+        int armAngles[] = {ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH, ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH};
+        int baseAngles[] = {FIRST_GRAB, SECOND_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB};
         for(int i = 0; i < NUM_AGENTS; ++i)
         {
             while(!clawCollector.detectAgentTapeRight())
@@ -153,7 +146,7 @@ void Controller::agentPickup()
                 if(stopIfButtonPressed()) return;
             }
             driver.stop();
-            clawCollector.grabAgent(agentAngles[i]);
+            clawCollector.grabAgent(baseAngles[i], armAngles[i]);
             while(clawCollector.detectAgentTapeRight())
             {
                 driver.drive(state);
@@ -161,12 +154,27 @@ void Controller::agentPickup()
             }
             if(stopIfButtonPressed()) return;
         }
-        driver.stop();
-    }*/
-    while(true)
-    {
-        clawCollector.grabAgent(ARM_GRAB_HIGH);
     }
+    if(stopIfButtonPressed()) return;
+    clawCollector.ziplineMove();
+    driver.setSpeed(REGULAR_SPEED);
+    driver.setKp(70);
+    while(!clawCollector.detectAgentTapeRight())
+    {
+        driver.drive(state);
+        if(stopIfButtonPressed()) return;
+    }
+    while(clawCollector.detectAgentTapeRight())
+    {
+        driver.drive(state);
+        if(stopIfButtonPressed()) return;
+    }
+    while(!clawCollector.detectAgentTapeRight())
+    {
+        driver.drive(state);
+        if(stopIfButtonPressed()) return;
+    }
+    driver.stop();
 }
 
 /*
@@ -175,16 +183,76 @@ void Controller::agentPickup()
 */
 void Controller::freeFollow()
 {
-    IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
-    IRDetector irDetectorL = IRDetector(TEN_KHZ_IR_PIN_L, ONE_KHZ_IR_PIN_L);
-    while(true)
-    {
-        driver.irDrive(&irDetectorR, &irDetectorL);
-        LCD.clear();
-        LCD.home();
-        LCD.print("6: Free Following");
+
         if(stopIfButtonPressed()) return;
-    }
+        driver.setSpeed(60);
+        long stuff = millis();
+        while(millis() - stuff < 1000)
+        {
+            driver.driveStraight();
+        }
+        driver.turnRight60();
+        stuff = millis();
+        while(millis() - stuff < 1000)
+        {
+            driver.driveStraight();
+        }
+        driver.driveStraightUntilEdge();
+
+
+
+        long collectionTime = millis();
+        while(millis() - collectionTime < 7000)
+        {
+            motor.speed(MOTOR_COLLECTION_BOX, 255);
+        }
+        motor.speed(MOTOR_COLLECTION_BOX, 0);
+
+        driver.turnRight();
+        driver.turnRight45();
+
+
+        collectionTime = millis();
+        while(millis() - collectionTime < 5000)
+        {
+            driver.driveStraight();
+        }
+
+
+
+        collectionTime = millis();
+        while(millis() - collectionTime < 4500)
+        {
+            motor.speed(MOTOR_COLLECTION_BOX, -255);
+        }
+        motor.speed(MOTOR_COLLECTION_BOX, 0);
+
+
+        while(true)
+        {
+            if(stopIfButtonPressed()) return;
+            delay(1000);
+        }
+
+        /*IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
+        IRDetector irDetectorL = IRDetector(TEN_KHZ_IR_PIN_L, ONE_KHZ_IR_PIN_L);
+
+        while(!driver.irDrive(&irDetectorR, &irDetectorL))
+        {
+            if(stopIfButtonPressed()) return;
+        }
+
+        driver.turnLeft20();
+
+        long initialTime = millis();
+
+        while(millis() - initialTime < 4000)
+        {
+            if(stopIfButtonPressed()) return;
+            driver.driveStraight();
+        }
+        driver.stop();*/
+
 }
 
 /*
@@ -194,6 +262,7 @@ void Controller::freeFollow()
 */
 void Controller::zipline()
 {
+    driver.setSpeed(REGULAR_SPEED);
     long initialTime = millis();
     while(millis() - initialTime < COLLECTION_BOX_MOTOR_TIME)
     {

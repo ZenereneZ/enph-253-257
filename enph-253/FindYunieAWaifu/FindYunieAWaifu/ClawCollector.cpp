@@ -4,18 +4,27 @@
 
 ClawCollector::ClawCollector()
 {
-    baseAngle = STARTING_BASE_ANGLE;
-    armAngle = STARTING_ARM_ANGLE;
-    RCServo0.write(baseAngle);
-    RCServo1.write(armAngle);
+    setStartingPosition();
 }
 
-void ClawCollector::grabAgent(int agentAngle)
+void ClawCollector::setStartingPosition()
+{
+
+    baseAngle = STARTING_BASE_ANGLE;
+    armAngle = STARTING_ARM_ANGLE;
+    RCServo1.write(ARM_MAX);
+    RCServo0.write(baseAngle);
+    RCServo1.write(armAngle);
+    openHand();
+
+}
+
+void ClawCollector::grabAgent(int bAngle, int aAngle)
 {
     openHand();
     turnArm(ARM_MAX, ARM_DELAY, MIN_ARM_DELAY);
-    turnBase(BASE_GRAB, BASE_DELAY, MIN_BASE_DELAY);
-    turnArm(agentAngle, ARM_DELAY, MIN_ARM_DELAY);
+    turnBase(bAngle, BASE_DELAY, MIN_BASE_DELAY);
+    turnArm(aAngle, ARM_DELAY, MIN_ARM_DELAY);
     closeHand();
     delay(CLAW_DELAY);
     turnArm(ARM_MAX, ARM_DELAY, MIN_ARM_DELAY);
@@ -56,6 +65,14 @@ bool ClawCollector::detectAgentTapeRight()
     return analogRead(QRD_AGENT_TAPE_RIGHT) > QRD_THRESHOLD;
 }
 
+/**
+    The following functions turn the specified joint to the angle specified, accelerated such that it begins and ends its
+    movement more slowly than at the middle
+
+    @param angle the final angle to turn the joint to
+    @param delayFactor represents how drastic the acceleration is. A typical value will be around 0.1
+    @param minDelay the minimum delay value allowed for the movement. A typical value will be around 3
+*/
 void ClawCollector::turnBase(int angle, double delayFactor, int minDelay)
 {
     int initAngle = baseAngle;
@@ -84,6 +101,12 @@ void ClawCollector::turnArm(int angle, double delayFactor, int minDelay)
         RCServo1.write(armAngle);
         delay(max((int)(delayFactor*abs(midAngle- armAngle)), minDelay));
     }
+}
+
+void ClawCollector::ziplineMove()
+{
+    turnArm(120, 0.1, 3);
+    turnBase(150, 0.1, 3);
 }
 
 void ClawCollector::openHand()

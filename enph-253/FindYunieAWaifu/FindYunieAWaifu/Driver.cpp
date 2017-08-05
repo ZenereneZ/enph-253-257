@@ -112,11 +112,11 @@ bool Driver::irDrive(IRDetector* irDetectorLeft, IRDetector* irDetectorRight)
     int left = irDetectorLeft->getTenKHZ();
     int right = irDetectorRight->getTenKHZ();
     if(left > IR_ZIPLINE_THRESHOLD && right > IR_ZIPLINE_THRESHOLD) return true;
-    left = map(left, 0, MAX_VOLTAGE, 0, 30);
-    right = map(right, 0, MAX_VOLTAGE, 0, 30);
+    left = map(left, 0, MAX_VOLTAGE, 0, 50);
+    right = map(right, 0, MAX_VOLTAGE, 0, 50);
     int correction = left - right;
-    motor.speed(MOTOR_LEFT, FREE_FOLLOW_SPEED + correction);
-    motor.speed(MOTOR_RIGHT, FREE_FOLLOW_SPEED - correction);
+    motor.speed(MOTOR_LEFT, speed + correction);
+    motor.speed(MOTOR_RIGHT, speed - correction);
     return false;
 
 }
@@ -124,23 +124,90 @@ void Driver::stop()
 {
     motor.stop_all();
 }
-
-void Driver::turnRight()
+void Driver::turnLeft()
 {
-    for(int i = 0; i < 1000; ++i)
+    long initialTime = millis();
+
+    while(millis() - initialTime < 800)
     {
-        motor.speed(MOTOR_LEFT, -100);
         motor.speed(MOTOR_RIGHT, 100);
+        motor.speed(MOTOR_LEFT, -100);
     }
     this->stop();
 }
 
-void Driver::turnLeft()
+void Driver::turnRight()
 {
-    while(analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD)
+    long initialTime = millis();
+
+    while(millis() - initialTime < 800)
+    {
+        motor.speed(MOTOR_RIGHT, -100);
+        motor.speed(MOTOR_LEFT, 100);
+    }
+    this->stop();
+}
+
+void Driver::turnLeft45()
+{
+    long initialTime = millis();
+
+    while(millis() - initialTime < 500)
+    {
+        motor.speed(MOTOR_RIGHT, 100);
+        motor.speed(MOTOR_LEFT, -100);
+    }
+}
+
+void Driver::turnLeft20()
+{
+    long initialTime = millis();
+
+    while(millis() - initialTime < 200)
+    {
+        motor.speed(MOTOR_RIGHT, 100);
+        motor.speed(MOTOR_LEFT, -100);
+    }
+}
+void Driver::turnRight60()
+{
+    long initialTime = millis();
+
+    while(millis() - initialTime < 400)
+    {
+        motor.speed(MOTOR_RIGHT, -100);
+        motor.speed(MOTOR_LEFT, 100);
+    }
+}
+void Driver::turnRight45()
+{
+    long initialTime = millis();
+
+    while(millis() - initialTime < 300)
+    {
+        motor.speed(MOTOR_RIGHT, -100);
+        motor.speed(MOTOR_LEFT, 100);
+    }
+}
+
+
+
+void Driver::turnLeftUntilQRD()
+{
+    while(analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD && analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD)
     {
         motor.speed(MOTOR_RIGHT, 75);
         motor.speed(MOTOR_LEFT, -75);
+
+    }
+    this->stop();
+}
+void Driver::turnRightUntilQRD()
+{
+    while(analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD && analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD)
+    {
+        motor.speed(MOTOR_RIGHT, -75);
+        motor.speed(MOTOR_LEFT, 75);
 
     }
     this->stop();
@@ -149,17 +216,20 @@ void Driver::turnLeft()
 
 void Driver::driveStraight()
 {
-    motor.speed(MOTOR_LEFT, 80);
-    motor.speed(MOTOR_RIGHT, 80);
+    motor.speed(MOTOR_LEFT, speed);
+    motor.speed(MOTOR_RIGHT, speed);
 }
 
 void Driver::powerBrake()
 {
-    for(int i = 0; i < 1000; ++i)
+    long initialTime = millis();
+
+    while(millis() - initialTime < 75)
     {
-        motor.speed(MOTOR_LEFT, -75);
-        motor.speed(MOTOR_RIGHT, -75);
+        motor.speed(MOTOR_LEFT, -150);
+        motor.speed(MOTOR_RIGHT, -150);
     }
+    this->stop();
 }
 
 void Driver::ziplineDrive()
@@ -192,7 +262,9 @@ int Driver::getTapeFollowingError()
     if (onLeft && onRight) return 0;
     else if (onLeft && !onRight) return ERROR_LEFT_HALF;
     else if (!onLeft && onRight) return ERROR_RIGHT_HALF;
-    else return (lastError>0) ? ERROR_RIGHT_FULL : ERROR_LEFT_FULL;
+    else if (lastError > 0) return ERROR_RIGHT_FULL;
+    else if (lastError < 0) return ERROR_LEFT_FULL;
+    else return 0;
 }
 
 int Driver::getTapeFollowingErrorAgentsLeft()
@@ -237,7 +309,16 @@ int Driver::getTapeFollowingErrorHillRight()
     else if (lastError < 0) return ERROR_LEFT_FULL;
     else return ERROR_LEFT_FULL;
 }
-
+void Driver::driveStraightUntilEdge()
+{
+    while(analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD && analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD)
+    {
+        motor.speed(MOTOR_LEFT, 70);
+        motor.speed(MOTOR_RIGHT, 70);
+    }
+    this->powerBrake();
+    this->stop();
+}
 void Driver::setSpeed(int speed)
 {
     this->speed = speed;

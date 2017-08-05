@@ -1,12 +1,9 @@
-
-
 namespace Utils
 {
     enum State
     {
       MenuSetup,
       GateFollow,
-      TapeFollow,
       TapeFollowHill,
       AgentPickup,
       FreeFollow,
