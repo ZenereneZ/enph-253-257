@@ -140,7 +140,7 @@ void Driver::turnRight()
 {
     long initialTime = millis();
 
-    while(millis() - initialTime < 800)
+    while(millis() - initialTime < 1000)
     {
         motor.speed(MOTOR_RIGHT, -100);
         motor.speed(MOTOR_LEFT, 100);
@@ -173,10 +173,10 @@ void Driver::turnRight60()
 {
     long initialTime = millis();
 
-    while(millis() - initialTime < 400)
+    while(millis() - initialTime < 820)
     {
-        motor.speed(MOTOR_RIGHT, -100);
-        motor.speed(MOTOR_LEFT, 100);
+        motor.speed(MOTOR_RIGHT, -70);
+        motor.speed(MOTOR_LEFT, 70);
     }
 }
 void Driver::turnRight45()
@@ -195,6 +195,16 @@ void Driver::turnRight45()
 void Driver::turnLeftUntilQRD()
 {
     while(analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD && analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD)
+    {
+        motor.speed(MOTOR_RIGHT, 75);
+        motor.speed(MOTOR_LEFT, -75);
+
+    }
+    this->stop();
+}
+void Driver::turnLeftWeird()
+{
+    while(analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD || analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD)
     {
         motor.speed(MOTOR_RIGHT, 75);
         motor.speed(MOTOR_LEFT, -75);
@@ -224,7 +234,19 @@ void Driver::powerBrake()
 {
     long initialTime = millis();
 
-    while(millis() - initialTime < 75)
+    while(millis() - initialTime < 125)
+    {
+        motor.speed(MOTOR_LEFT, -150);
+        motor.speed(MOTOR_RIGHT, -150);
+    }
+    this->stop();
+}
+
+void Driver::smallPowerBrake()
+{
+    long initialTime = millis();
+
+    while(millis() - initialTime < 50)
     {
         motor.speed(MOTOR_LEFT, -150);
         motor.speed(MOTOR_RIGHT, -150);

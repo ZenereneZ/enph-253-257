@@ -108,10 +108,11 @@ void Controller::tapeFollowHill()
         }
         if(stopIfButtonPressed()) return;
     }
-    driver.powerBrake();
+    driver.smallPowerBrake();
     driver.stop();
     delay(1000);
-    driver.turnLeftUntilQRD();
+    //driver.turnLeftUntilQRD();
+    driver.turnLeftWeird();
     driver.stop();
     delay(1000);
 }
@@ -126,35 +127,33 @@ void Controller::agentPickup()
 
     driver.setSpeed(REGULAR_SPEED);
     driver.setKp(70);
-    while(true)
+    LCD.clear();
+    LCD.home();
+    LCD.print("5: AgentPickup");
+    while(clawCollector.detectAgentTapeRight())
     {
-        LCD.clear();
-        LCD.home();
-        LCD.print("5: AgentPickup");
+        driver.drive(state);
+        if(stopIfButtonPressed()) return;
+    }
+    int armAngles[] = {ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH, ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH};
+    int baseAngles[] = {FIRST_GRAB, SECOND_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB};
+    for(int i = 0; i < NUM_AGENTS; ++i)
+    {
+        while(!clawCollector.detectAgentTapeRight())
+        {
+            driver.drive(state);
+            if(stopIfButtonPressed()) return;
+        }
+        driver.stop();
+        clawCollector.grabAgent(baseAngles[i], armAngles[i]);
         while(clawCollector.detectAgentTapeRight())
         {
             driver.drive(state);
             if(stopIfButtonPressed()) return;
         }
-        int armAngles[] = {ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH, ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH};
-        int baseAngles[] = {FIRST_GRAB, SECOND_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB};
-        for(int i = 0; i < NUM_AGENTS; ++i)
-        {
-            while(!clawCollector.detectAgentTapeRight())
-            {
-                driver.drive(state);
-                if(stopIfButtonPressed()) return;
-            }
-            driver.stop();
-            clawCollector.grabAgent(baseAngles[i], armAngles[i]);
-            while(clawCollector.detectAgentTapeRight())
-            {
-                driver.drive(state);
-                if(stopIfButtonPressed()) return;
-            }
-            if(stopIfButtonPressed()) return;
-        }
+        if(stopIfButtonPressed()) return;
     }
+
     if(stopIfButtonPressed()) return;
     clawCollector.ziplineMove();
     driver.setSpeed(REGULAR_SPEED);
@@ -191,6 +190,8 @@ void Controller::freeFollow()
         {
             driver.driveStraight();
         }
+        driver.stop();
+        delay(100);
         driver.turnRight60();
         stuff = millis();
         while(millis() - stuff < 1000)
@@ -209,7 +210,6 @@ void Controller::freeFollow()
         motor.speed(MOTOR_COLLECTION_BOX, 0);
 
         driver.turnRight();
-        driver.turnRight45();
 
 
         collectionTime = millis();

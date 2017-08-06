@@ -25,12 +25,14 @@ public:
     void turnRight();
     void turnLeftUntilQRD();
     void turnRightUntilQRD();
+    void turnLeftWeird();
     void driveStraight();
     void driveStraightUntilEdge();
     void ziplineDrive();
     void driveToGate(int state);
     void setKp(int kp);
     void powerBrake();
+    void smallPowerBrake();
 
 private:
     short K; // total error gain
