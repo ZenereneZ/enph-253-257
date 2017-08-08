@@ -12,7 +12,8 @@ Controller::Controller()
     driver = Driver();
     clawCollector = ClawCollector();
     state = INITIAL_STATE;
-    direction = Left;
+    if(digitalRead(1)) direction = Right;
+    else direction = Left;
 }
 
 /*
@@ -58,6 +59,8 @@ void Controller::menuSetup()
         LCD.home();
         LCD.print("Menu Setup");
     }
+    if(digitalRead(1)) direction = Right;
+    else direction = Left;
     clawCollector.setStartingPosition();
     delay(500);
 }
@@ -84,7 +87,15 @@ void Controller::gateFollow()
         if(irDetectorL.getOneKHZ() > irDetectorL.getTenKHZ() && irDetectorR.getOneKHZ() > irDetectorR.getTenKHZ())
         {
             gateOpen = true;
-            driver.turnRightUntilQRD();
+            if(direction == Left)
+            {
+                driver.turnRightUntilQRD();
+            }
+            else
+            {
+                driver.turnLeftUntilQRD();
+            }
+
         }
         if(stopIfButtonPressed()) return;
     }
@@ -108,7 +119,10 @@ void Controller::tapeFollowHill()
     driver.powerBrake();
     driver.stop();
     delay(1000);
-    driver.turnLeftUntilQRD();
+
+    if(direction == Left) driver.turnLeftUntilQRD();
+    else driver.turnRightUntilQRD();
+
     driver.stop();
     delay(1000);
 }
@@ -126,49 +140,98 @@ void Controller::agentPickup()
     LCD.clear();
     LCD.home();
     LCD.print("5: AgentPickup");
-    while(clawCollector.detectAgentTapeRight())
+
+    if(direction == Left)
     {
-        driver.drive(state);
-        if(stopIfButtonPressed()) return;
-    }
-    int armAngles[] = {ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH, ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH};
-    int baseAngles[] = {FIRST_GRAB, SECOND_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB, BASE_GRAB};
-    for(int i = 0; i < NUM_AGENTS; ++i)
-    {
-        while(!clawCollector.detectAgentTapeRight())
-        {
-            driver.drive(state);
-            if(stopIfButtonPressed()) return;
-        }
-        driver.stop();
-        clawCollector.grabAgent(baseAngles[i], armAngles[i]);
         while(clawCollector.detectAgentTapeRight())
         {
             driver.drive(state);
             if(stopIfButtonPressed()) return;
         }
+        int armAngles[] = {ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH, ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH};
+        int baseAngles[] = {FIRST_GRAB_L, SECOND_GRAB_L, BASE_GRAB_L, BASE_GRAB_L, BASE_GRAB_L, BASE_GRAB_L, BASE_GRAB_L};
+        for(int i = 0; i < NUM_AGENTS; ++i)
+        {
+            while(!clawCollector.detectAgentTapeRight())
+            {
+                driver.drive(state);
+                if(stopIfButtonPressed()) return;
+            }
+            driver.stop();
+            clawCollector.grabAgent(baseAngles[i], armAngles[i]);
+            while(clawCollector.detectAgentTapeRight())
+            {
+                driver.drive(state);
+                if(stopIfButtonPressed()) return;
+            }
+            if(stopIfButtonPressed()) return;
+        }
         if(stopIfButtonPressed()) return;
-    }
-    if(stopIfButtonPressed()) return;
 
+        clawCollector.ziplineMoveLeft();
 
-    clawCollector.ziplineMove();
+        while(!clawCollector.detectAgentTapeRight())
+        {
+            driver.drive(state);
+            if(stopIfButtonPressed()) return;
+        }
+        while(clawCollector.detectAgentTapeRight())
+        {
+            driver.drive(state);
+            if(stopIfButtonPressed()) return;
+        }
+        while(!clawCollector.detectAgentTapeRight())
+        {
+            driver.drive(state);
+            if(stopIfButtonPressed()) return;
+        }
+    }
+    else
+    {
+        while(clawCollector.detectAgentTapeLeft())
+        {
+            driver.drive(state);
+            if(stopIfButtonPressed()) return;
+        }
+        int armAngles[] = {ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH, ARM_GRAB_MIDDLE, ARM_GRAB_LOW, ARM_GRAB_HIGH};
+        int baseAngles[] = {FIRST_GRAB_R, SECOND_GRAB_R, BASE_GRAB_R, BASE_GRAB_R, BASE_GRAB_R, BASE_GRAB_R, BASE_GRAB_R};
+        for(int i = 0; i < NUM_AGENTS; ++i)
+        {
+            while(!clawCollector.detectAgentTapeLeft())
+            {
+                driver.drive(state);
+                if(stopIfButtonPressed()) return;
+            }
+            driver.stop();
+            clawCollector.grabAgent(baseAngles[i], armAngles[i]);
+            while(clawCollector.detectAgentTapeLeft())
+            {
+                driver.drive(state);
+                if(stopIfButtonPressed()) return;
+            }
+            if(stopIfButtonPressed()) return;
+        }
+        if(stopIfButtonPressed()) return;
 
-    while(!clawCollector.detectAgentTapeRight())
-    {
-        driver.drive(state);
-        if(stopIfButtonPressed()) return;
+        clawCollector.ziplineMoveRight();
+
+        while(!clawCollector.detectAgentTapeLeft())
+        {
+            driver.drive(state);
+            if(stopIfButtonPressed()) return;
+        }
+        while(clawCollector.detectAgentTapeLeft())
+        {
+            driver.drive(state);
+            if(stopIfButtonPressed()) return;
+        }
+        while(!clawCollector.detectAgentTapeLeft())
+        {
+            driver.drive(state);
+            if(stopIfButtonPressed()) return;
+        }
     }
-    while(clawCollector.detectAgentTapeRight())
-    {
-        driver.drive(state);
-        if(stopIfButtonPressed()) return;
-    }
-    while(!clawCollector.detectAgentTapeRight())
-    {
-        driver.drive(state);
-        if(stopIfButtonPressed()) return;
-    }
+
     driver.stop();
 }
 
@@ -182,7 +245,8 @@ void Controller::freeFollow()
 
     driver.setSpeed(60);
     driver.driveStraightTime(INITIAL_EDGE_DRIVE_TIME);
-    driver.turnRightTime(400);
+    if(direction == Left) driver.turnRightTime(400);
+    else driver.turnLeftTime(400);
     driver.driveStraightTime(INITIAL_EDGE_DRIVE_TIME);
     driver.driveStraightUntilEdge();
 }
@@ -200,7 +264,8 @@ void Controller::zipline()
 
 
     driver.raiseCollectionBox();
-    driver.turnRightTime(1100);
+    if(direction == Left) driver.turnRightTime(1000);
+    else driver.turnLeftTime(1000);
     driver.driveStraightTime(3000);
     driver.lowerCollectionBox();
     

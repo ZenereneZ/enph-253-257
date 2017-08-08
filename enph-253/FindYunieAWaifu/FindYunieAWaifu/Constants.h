@@ -77,9 +77,15 @@
 #define ARM_GRAB_LOW 20
 
 #define BASE_REST 90
-#define BASE_GRAB 150
-#define FIRST_GRAB 180
-#define SECOND_GRAB 160
+
+#define BASE_GRAB_L 150
+#define FIRST_GRAB_L 180
+#define SECOND_GRAB_L 160
+
+#define BASE_GRAB_R 30
+#define FIRST_GRAB_R 0
+#define SECOND_GRAB_R 20
+
 
 #define STARTING_BASE_ANGLE 90
 #define STARTING_ARM_ANGLE 20

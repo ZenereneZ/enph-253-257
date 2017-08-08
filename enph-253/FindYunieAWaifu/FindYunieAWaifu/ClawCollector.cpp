@@ -103,10 +103,16 @@ void ClawCollector::turnArm(int angle, double delayFactor, int minDelay)
     }
 }
 
-void ClawCollector::ziplineMove()
+void ClawCollector::ziplineMoveLeft()
 {
     turnArm(120, 0.1, 3);
     turnBase(150, 0.1, 3);
+}
+
+void ClawCollector::ziplineMoveRight()
+{
+    turnArm(120, 0.1, 3);
+    turnBase(30, 0.1, 3);
 }
 
 void ClawCollector::openHand()
