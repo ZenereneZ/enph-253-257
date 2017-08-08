@@ -72,7 +72,7 @@ void Controller::menuSetup()
 void Controller::gateFollow()
 {
     if(stopIfButtonPressed()) return;
-    driver.setSpeed(REGULAR_SPEED);
+    driver.setSpeed(HILL_SPEED);
     driver.driveToGate(state);
     driver.stop();
     IRDetector irDetectorR = IRDetector(TEN_KHZ_IR_PIN_R, ONE_KHZ_IR_PIN_R);
@@ -89,11 +89,11 @@ void Controller::gateFollow()
             gateOpen = true;
             if(direction == Left)
             {
-                driver.turnRightUntilQRD();
+                driver.turnRightUntilQRDEither();
             }
             else
             {
-                driver.turnLeftUntilQRD();
+                driver.turnLeftUntilQRDEither();
             }
 
         }
@@ -116,12 +116,12 @@ void Controller::tapeFollowHill()
         driver.drive(state);
         if(stopIfButtonPressed()) return;
     }
-    driver.powerBrake();
+    driver.smallPowerBrake();
     driver.stop();
     delay(1000);
 
-    if(direction == Left) driver.turnLeftUntilQRD();
-    else driver.turnRightUntilQRD();
+    if(direction == Left) driver.turnLeftUntilQRDBoth();
+    else driver.turnRightUntilQRDBoth();
 
     driver.stop();
     delay(1000);
@@ -245,8 +245,10 @@ void Controller::freeFollow()
 
     driver.setSpeed(60);
     driver.driveStraightTime(INITIAL_EDGE_DRIVE_TIME);
-    if(direction == Left) driver.turnRightTime(400);
-    else driver.turnLeftTime(400);
+    driver.stop();
+    delay(100);
+    if(direction == Left) driver.turnRightTime(820, 70);
+    else driver.turnLeftTime(820, 70);
     driver.driveStraightTime(INITIAL_EDGE_DRIVE_TIME);
     driver.driveStraightUntilEdge();
 }
@@ -264,8 +266,8 @@ void Controller::zipline()
 
 
     driver.raiseCollectionBox();
-    if(direction == Left) driver.turnRightTime(1000);
-    else driver.turnLeftTime(1000);
+    if(direction == Left) driver.turnRightTime(1000, 100);
+    else driver.turnLeftTime(1000, 100);
     driver.driveStraightTime(3000);
     driver.lowerCollectionBox();
     

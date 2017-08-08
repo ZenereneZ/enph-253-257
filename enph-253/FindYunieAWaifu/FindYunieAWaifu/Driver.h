@@ -21,13 +21,16 @@ public:
     void driveStraightTime(int ms);
     void turnLeft();
     void turnRight();
-    void turnLeftUntilQRD();
-    void turnRightUntilQRD();
+    void turnLeftUntilQRDBoth();
+    void turnRightUntilQRDBoth();
+    void turnLeftUntilQRDEither();
+    void turnRightUntilQRDEither();
     void driveStraight();
     void driveStraightUntilEdge();
     void driveToGate(int state);
     void setKp(int kp);
     void powerBrake();
+    void smallPowerBrake();
     void raiseCollectionBox();
     void lowerCollectionBox();
 

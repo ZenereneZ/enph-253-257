@@ -136,23 +136,23 @@ void Driver::turnRight()
     this->stop();
 }
 
-void Driver::turnLeftTime(int ms)
+void Driver::turnLeftTime(int ms, int turnSpeed)
 {
     long timer = millis();
     while(millis() - timer < ms)
     {
-        motor.speed(MOTOR_RIGHT, TURNING_SPEED);
-        motor.speed(MOTOR_LEFT, -TURNING_SPEED);
+        motor.speed(MOTOR_RIGHT, turnSpeed);
+        motor.speed(MOTOR_LEFT, -turnSpeed);
     }
 }
 
-void Driver::turnRightTime(int ms)
+void Driver::turnRightTime(int ms, int turnSpeed)
 {
     long timer = millis();
     while(millis() - timer < ms)
     {
-        motor.speed(MOTOR_RIGHT, -TURNING_SPEED);
-        motor.speed(MOTOR_LEFT, TURNING_SPEED);
+        motor.speed(MOTOR_RIGHT, -turnSpeed);
+        motor.speed(MOTOR_LEFT, turnSpeed);
     }
 }
 
@@ -166,7 +166,7 @@ void Driver::driveStraightTime(int ms)
     }
 }
 
-void Driver::turnLeftUntilQRD()
+void Driver::turnLeftUntilQRDEither()
 {
     while(analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD && analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD)
     {
@@ -176,9 +176,30 @@ void Driver::turnLeftUntilQRD()
     }
     this->stop();
 }
-void Driver::turnRightUntilQRD()
+void Driver::turnRightUntilQRDEither()
 {
     while(analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD && analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD)
+    {
+        motor.speed(MOTOR_RIGHT, -75);
+        motor.speed(MOTOR_LEFT, 75);
+
+    }
+    this->stop();
+}
+
+void Driver::turnLeftUntilQRDBoth()
+{
+    while(analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD || analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD)
+    {
+        motor.speed(MOTOR_RIGHT, 75);
+        motor.speed(MOTOR_LEFT, -75);
+
+    }
+    this->stop();
+}
+void Driver::turnRightUntilQRDBoth()
+{
+    while(analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD || analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD)
     {
         motor.speed(MOTOR_RIGHT, -75);
         motor.speed(MOTOR_LEFT, 75);
@@ -198,13 +219,26 @@ void Driver::powerBrake()
 {
     long initialTime = millis();
 
-    while(millis() - initialTime < 75)
+    while(millis() - initialTime < 125)
     {
         motor.speed(MOTOR_LEFT, -150);
         motor.speed(MOTOR_RIGHT, -150);
     }
     this->stop();
 }
+
+void Driver::smallPowerBrake()
+{
+    long initialTime = millis();
+
+    while(millis() - initialTime < 50)
+    {
+        motor.speed(MOTOR_LEFT, -150);
+        motor.speed(MOTOR_RIGHT, -150);
+    }
+    this->stop();
+}
+
 void Driver::driveToGate(int state)
 {
     long timer = millis();
