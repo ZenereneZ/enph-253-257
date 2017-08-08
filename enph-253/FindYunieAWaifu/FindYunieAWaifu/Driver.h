@@ -16,8 +16,8 @@ public:
     void initializeErrors();
     void stop();
     void setSpeed(int speed);
-    void turnLeftTime(int ms);
-    void turnRightTime(int ms);
+    void turnLeftTime(int ms, int turnSpeed);
+    void turnRightTime(int ms, int turnSpeed);
     void driveStraightTime(int ms);
     void turnLeft();
     void turnRight();

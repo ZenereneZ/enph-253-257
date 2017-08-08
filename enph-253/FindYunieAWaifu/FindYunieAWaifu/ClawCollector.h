@@ -11,7 +11,8 @@ public:
     bool detectAgentTapeRight();
     bool detectAgentTapeEither();
     void setStartingPosition();
-    void ziplineMove();
+    void ziplineMoveRight();
+    void ziplineMoveLeft();
 
 private:
     int baseAngle;
