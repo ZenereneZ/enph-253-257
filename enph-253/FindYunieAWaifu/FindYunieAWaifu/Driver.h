@@ -12,14 +12,13 @@ class Driver {
 public:
     Driver();
     void drive(int state, int direction);
-    bool irDrive(IRDetector* irDetectorRight, IRDetector* irDetectorLeft);
+    void irDrive(IRDetector* irDetectorRight, IRDetector* irDetectorLeft);
     void initialize();
     void initializeErrors();
     void stop();
     void setSpeed(int speed);
     void turnLeftTime(int ms, int turnSpeed);
     void turnRightTime(int ms, int turnSpeed);
-    void driveStraightTime(int ms);
     void turnLeft();
     void turnRight();
     void turnLeftUntilQRDBoth();
@@ -27,8 +26,9 @@ public:
     void turnLeftUntilQRDEither();
     void turnRightUntilQRDEither();
     void driveStraight();
-    void driveStraightUntilEdge();
+    void driveStraightUntilEdge(int leftSpeed, int rightSpeed);
     void driveToGate(int state, int direction);
+    void driveStraightTime(int leftSpeed, int rightSpeed, int ms);
     void driveBackUntilQRD();
     void setKp(int kp);
     void powerBrake();

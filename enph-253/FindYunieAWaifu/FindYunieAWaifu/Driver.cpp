@@ -109,18 +109,15 @@ void Driver::drive(int state, int direction)
     lastError = error;
 }
 
-bool Driver::irDrive(IRDetector* irDetectorLeft, IRDetector* irDetectorRight)
+void Driver::irDrive(IRDetector* irDetectorLeft, IRDetector* irDetectorRight)
 {
     int left = irDetectorLeft->getTenKHZ();
     int right = irDetectorRight->getTenKHZ();
-    if(left > IR_ZIPLINE_THRESHOLD && right > IR_ZIPLINE_THRESHOLD) return true;
     left = map(left, 0, MAX_VOLTAGE, 0, 50);
     right = map(right, 0, MAX_VOLTAGE, 0, 50);
     int correction = left - right;
-    motor.speed(MOTOR_LEFT, speed + correction);
-    motor.speed(MOTOR_RIGHT, speed - correction);
-    return false;
-
+    motor.speed(MOTOR_LEFT, speed - correction);
+    motor.speed(MOTOR_RIGHT, speed + correction);
 }
 
 void Driver::stop()
@@ -172,13 +169,13 @@ void Driver::turnRightTime(int ms, int turnSpeed)
     }
 }
 
-void Driver::driveStraightTime(int ms)
+void Driver::driveStraightTime(int leftSpeed, int rightSpeed, int ms)
 {
     long timer = millis();
     while(millis() - timer < ms)
     {
-        motor.speed(MOTOR_RIGHT, speed);
-        motor.speed(MOTOR_LEFT, speed);
+        motor.speed(MOTOR_RIGHT, leftSpeed);
+        motor.speed(MOTOR_LEFT, rightSpeed);
     }
 }
 
@@ -385,12 +382,12 @@ void Driver::stopCollectionBox()
     motor.speed(MOTOR_COLLECTION_BOX, 0);
 }
 
-void Driver::driveStraightUntilEdge()
+void Driver::driveStraightUntilEdge(int speedLeft, int speedRight)
 {
     while(analogRead(QRD_TAPE_LEFT) < QRD_THRESHOLD && analogRead(QRD_TAPE_RIGHT) < QRD_THRESHOLD)
     {
-        motor.speed(MOTOR_LEFT, 70);
-        motor.speed(MOTOR_RIGHT, 70);
+        motor.speed(MOTOR_LEFT, speedLeft);
+        motor.speed(MOTOR_RIGHT, speedRight);
     }
     this->powerBrake();
     this->stop();

@@ -31,7 +31,6 @@
 #define MENU_BLINK_TIME 500
 #define MENU_MAX_K 100
 
-
 //PID CONTROL
 #define GAIN_KP 40
 #define GAIN_KD 4
@@ -58,16 +57,14 @@
 
 
 //SERVO AND CLAW
-#define MIN_BASE_DELAY 10
-#define CLAW_DELAY 250
-
 #define HIGH_LIMIT 5
 #define LOW_LIMIT -5
 
-#define ARM_DELAY 0.2
-#define BASE_DELAY 0.7
-#define MIN_ARM_DELAY 3
-#define LOW_LIMIT -5
+#define ARM_DELAY 0.15//0.2
+#define BASE_DELAY 0.5//0.7
+#define MIN_ARM_DELAY 2//3
+#define MIN_BASE_DELAY 5//10
+#define CLAW_DELAY 250//250
 
 #define ARM_MAX 130
 #define ARM_GRAB_TUNING 20
@@ -92,7 +89,7 @@
 #define STARTING_ARM_ANGLE 20
 
 #define OPEN_HAND_ANGLE 140
-#define CLOSE_HAND_ANGLE 50
+#define CLOSE_HAND_ANGLE 40
 
 #define INITIAL_STATE 1
 

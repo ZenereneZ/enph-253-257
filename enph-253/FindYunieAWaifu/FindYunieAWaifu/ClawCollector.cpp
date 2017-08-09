@@ -24,12 +24,15 @@ void ClawCollector::grabAgent(int bAngle, int aAngle)
     openHand();
     turnArm(ARM_MAX, ARM_DELAY, MIN_ARM_DELAY);
     turnBase(bAngle, BASE_DELAY, MIN_BASE_DELAY);
+    delay(100);
     turnArm(aAngle, ARM_DELAY, MIN_ARM_DELAY);
+    delay(100);
     closeHand();
     delay(CLAW_DELAY);
     turnArm(ARM_MAX, ARM_DELAY, MIN_ARM_DELAY);
     turnBase(BASE_REST, BASE_DELAY, MIN_BASE_DELAY);
     turnArm(ARM_MAX, ARM_DELAY, MIN_ARM_DELAY);
+    delay(100);
     openHand();
     delay(CLAW_DELAY);
 }
