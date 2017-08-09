@@ -299,7 +299,7 @@ void Controller::freeFollow()
 {
     if(stopIfButtonPressed()) return;
 
-    driver.setSpeed(60);
+    driver.setSpeed(70);
     driver.driveStraightTime(INITIAL_EDGE_DRIVE_TIME);
     driver.stop();
     delay(100);
