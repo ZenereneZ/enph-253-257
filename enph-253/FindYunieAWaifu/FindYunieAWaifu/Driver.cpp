@@ -68,16 +68,18 @@ void Driver::initialize()
 * drive - gets error of QRD with respect to tape
 *       - drives motors in correct direction using error
 */
-void Driver::drive(int state)
+void Driver::drive(int state, int direction)
 {
     int error = 0;
     switch(state)
     {
         case(TapeFollowHill):
-            error = getTapeFollowingError();
+            if(direction == Left) error = getTapeFollowingErrorHillLeft();
+            else error = getTapeFollowingErrorHillRight();
             break;
         case(AgentPickup):
-            error = getTapeFollowingErrorAgentsLeft();
+            if(direction == Left) error = getTapeFollowingErrorAgentsLeft();
+            else error = getTapeFollowingErrorAgentsRight();
             break;
         default:
             error = getTapeFollowingError();
@@ -105,6 +107,20 @@ void Driver::drive(int state)
 
     stepsCurrentError++;
     lastError = error;
+}
+
+bool Driver::irDrive(IRDetector* irDetectorLeft, IRDetector* irDetectorRight)
+{
+    int left = irDetectorLeft->getTenKHZ();
+    int right = irDetectorRight->getTenKHZ();
+    if(left > IR_ZIPLINE_THRESHOLD && right > IR_ZIPLINE_THRESHOLD) return true;
+    left = map(left, 0, MAX_VOLTAGE, 0, 50);
+    right = map(right, 0, MAX_VOLTAGE, 0, 50);
+    int correction = left - right;
+    motor.speed(MOTOR_LEFT, speed + correction);
+    motor.speed(MOTOR_RIGHT, speed - correction);
+    return false;
+
 }
 
 void Driver::stop()
@@ -208,6 +224,40 @@ void Driver::turnRightUntilQRDBoth()
     this->stop();
 }
 
+void Driver::driveBackUntilQRD()
+{
+    int right = analogRead(QRD_AGENT_TAPE_RIGHT);
+    int left = analogRead(QRD_AGENT_TAPE_LEFT);
+    while(right < QRD_THRESHOLD && left < QRD_THRESHOLD)
+    {
+        motor.speed(MOTOR_RIGHT, -75);
+        motor.speed(MOTOR_LEFT, -75);
+        right = analogRead(QRD_AGENT_TAPE_RIGHT);
+        left = analogRead(QRD_AGENT_TAPE_LEFT);
+    }
+    this->stop();
+    /*
+    if(left)
+    {
+        while(left > QRD_THRESHOLD)
+        {
+            motor.speed(MOTOR_RIGHT, -75);
+            motor.speed(MOTOR_LEFT, -75);
+            left = analogRead(QRD_AGENT_TAPE_LEFT);
+        }
+    }
+    else
+    {
+        while(right > QRD_THRESHOLD)
+        {
+            motor.speed(MOTOR_RIGHT, -75);
+            motor.speed(MOTOR_LEFT, -75);
+            right = analogRead(QRD_AGENT_TAPE_RIGHT);
+        }
+    }
+    this->stop();*/
+
+}
 
 void Driver::driveStraight()
 {
@@ -231,7 +281,7 @@ void Driver::smallPowerBrake()
 {
     long initialTime = millis();
 
-    while(millis() - initialTime < 50)
+    while(millis() - initialTime < 125)
     {
         motor.speed(MOTOR_LEFT, -150);
         motor.speed(MOTOR_RIGHT, -150);
@@ -239,7 +289,7 @@ void Driver::smallPowerBrake()
     this->stop();
 }
 
-void Driver::driveToGate(int state)
+void Driver::driveToGate(int state, int direction)
 {
     long timer = millis();
     while(millis() - timer < TIME_TO_GATE)
@@ -247,7 +297,7 @@ void Driver::driveToGate(int state)
         LCD.clear();
         LCD.home();
         LCD.print("Driving to Gate");
-        this->drive(state);
+        this->drive(state, direction);
     }
 }
 
@@ -269,7 +319,7 @@ int Driver::getTapeFollowingErrorAgentsLeft()
     bool onRight = analogRead(QRD_TAPE_RIGHT) > qrdThresh;
     if (onLeft && onRight) return 0;
     else if (onLeft && !onRight) return ERROR_LEFT_HALF;
-    else if (!onLeft && onRight) return 0;
+    else if (!onLeft && onRight) return ERROR_RIGHT_HALF;
     else return ERROR_RIGHT_HALF;
 }
 
@@ -278,7 +328,7 @@ int Driver::getTapeFollowingErrorAgentsRight()
     bool onLeft = analogRead(QRD_TAPE_LEFT) > qrdThresh;
     bool onRight = analogRead(QRD_TAPE_RIGHT) > qrdThresh;
     if (onLeft && onRight) return 0;
-    else if (!onLeft && onRight) return 0;
+    else if (!onLeft && onRight) return ERROR_RIGHT_HALF;
     else if (onLeft && !onRight) return ERROR_LEFT_HALF;
     else return ERROR_LEFT_HALF;
 }
@@ -288,11 +338,11 @@ int Driver::getTapeFollowingErrorHillLeft()
     bool onLeft = analogRead(QRD_TAPE_LEFT) > qrdThresh;
     bool onRight = analogRead(QRD_TAPE_RIGHT) > qrdThresh;
     if (onLeft && onRight) return ERROR_LEFT_HALF;
-    else if (onLeft && !onRight) return ERROR_LEFT_HALF;
+    else if (onLeft && !onRight) return ERROR_LEFT_FULL;
     else if (!onLeft && onRight) return 0;
     else if (lastError > 0) return ERROR_RIGHT_FULL;
     else if(lastError < 0) return ERROR_LEFT_FULL;
-    else return ERROR_RIGHT_FULL;
+    else return 0;
 }
 
 int Driver::getTapeFollowingErrorHillRight()
@@ -300,24 +350,38 @@ int Driver::getTapeFollowingErrorHillRight()
     bool onLeft = analogRead(QRD_TAPE_LEFT) > qrdThresh;
     bool onRight = analogRead(QRD_TAPE_RIGHT) > qrdThresh;
     if (onLeft && onRight) return ERROR_RIGHT_HALF;
-    else if (!onLeft && onRight) return ERROR_RIGHT_HALF;
+    else if (!onLeft && onRight) return ERROR_RIGHT_FULL;
     else if (onLeft && !onRight) return 0;
     else if (lastError > 0) return ERROR_RIGHT_FULL;
     else if (lastError < 0) return ERROR_LEFT_FULL;
-    else return ERROR_LEFT_FULL;
+    else return 0;
 }
 
-void Driver::raiseCollectionBox()
+void Driver::raiseCollectionBoxFull()
 {
     long timer = millis();
     while(millis() - timer < COLLECTION_BOX_UP_MOTOR_TIME) motor.speed(MOTOR_COLLECTION_BOX, 255);
     motor.speed(MOTOR_COLLECTION_BOX, 0);
 }
 
-void Driver::lowerCollectionBox()
+void Driver::lowerCollectionBoxFull()
 {
     long timer = millis();
     while(millis() - timer < COLLECTION_BOX_DOWN_MOTOR_TIME) motor.speed(MOTOR_COLLECTION_BOX, -255);
+    motor.speed(MOTOR_COLLECTION_BOX, 0);
+}
+
+void Driver::raiseCollectionBox()
+{
+    motor.speed(MOTOR_COLLECTION_BOX, 255);
+}
+
+void Driver::lowerCollectionBox()
+{
+    motor.speed(MOTOR_COLLECTION_BOX, -255);
+}
+void Driver::stopCollectionBox()
+{
     motor.speed(MOTOR_COLLECTION_BOX, 0);
 }
 

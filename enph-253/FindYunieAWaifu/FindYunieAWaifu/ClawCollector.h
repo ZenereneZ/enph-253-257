@@ -7,8 +7,8 @@ public:
     ClawCollector();
     void grabAgent(int bAngle, int aAngle);
     bool detectAgentTapeBoth();
-    bool detectAgentTapeLeft();
-    bool detectAgentTapeRight();
+    bool detectAgentTapeLeft(int threshold);
+    bool detectAgentTapeRight(int threshold);
     bool detectAgentTapeEither();
     void setStartingPosition();
     void ziplineMoveRight();

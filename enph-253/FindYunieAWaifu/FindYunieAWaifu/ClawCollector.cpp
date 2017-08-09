@@ -55,14 +55,14 @@ bool ClawCollector::detectAgentTapeEither()
     return false;
 }
 
-bool ClawCollector::detectAgentTapeLeft()
+bool ClawCollector::detectAgentTapeLeft(int threshold)
 {
-    return analogRead(QRD_AGENT_TAPE_LEFT) > QRD_THRESHOLD;
+    return analogRead(QRD_AGENT_TAPE_LEFT) > threshold;
 }
 
-bool ClawCollector::detectAgentTapeRight()
+bool ClawCollector::detectAgentTapeRight(int threshold)
 {
-    return analogRead(QRD_AGENT_TAPE_RIGHT) > QRD_THRESHOLD;
+    return analogRead(QRD_AGENT_TAPE_RIGHT) > threshold;
 }
 
 /**

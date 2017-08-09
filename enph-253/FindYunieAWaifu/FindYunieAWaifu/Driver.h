@@ -11,7 +11,8 @@
 class Driver {
 public:
     Driver();
-    void drive(int state);
+    void drive(int state, int direction);
+    bool irDrive(IRDetector* irDetectorRight, IRDetector* irDetectorLeft);
     void initialize();
     void initializeErrors();
     void stop();
@@ -27,12 +28,17 @@ public:
     void turnRightUntilQRDEither();
     void driveStraight();
     void driveStraightUntilEdge();
-    void driveToGate(int state);
+    void driveToGate(int state, int direction);
+    void driveBackUntilQRD();
     void setKp(int kp);
     void powerBrake();
     void smallPowerBrake();
+    void raiseCollectionBoxFull();
+    void lowerCollectionBoxFull();
     void raiseCollectionBox();
     void lowerCollectionBox();
+    void stopCollectionBox();
+
 
 private:
     short K; // total error gain
