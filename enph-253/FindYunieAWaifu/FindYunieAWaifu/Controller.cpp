@@ -83,6 +83,7 @@ void Controller::gateFollow()
     {
         driver.stop();
     }
+    delay(100);
     while(irDetectorL.getOneKHZ() < irDetectorL.getTenKHZ() && irDetectorR.getOneKHZ() < irDetectorR.getTenKHZ())
     {
         driver.stop();
