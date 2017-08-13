@@ -1,0 +1,5 @@
+-lower Speed of turn initially around circle (not done yet)
+-power brake a bit more at the edge(not done yet)
+-Change turn to both on tape
+-stop motors and delay before driving to edge
+-reduce turn angle before driving to edge (and also turn slower (not done yet))
