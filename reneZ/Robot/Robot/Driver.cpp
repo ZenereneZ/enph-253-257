@@ -233,27 +233,6 @@ void Driver::driveBackUntilQRD()
         left = analogRead(QRD_AGENT_TAPE_LEFT);
     }
     this->stop();
-    /*
-    if(left)
-    {
-        while(left > QRD_THRESHOLD)
-        {
-            motor.speed(MOTOR_RIGHT, -75);
-            motor.speed(MOTOR_LEFT, -75);
-            left = analogRead(QRD_AGENT_TAPE_LEFT);
-        }
-    }
-    else
-    {
-        while(right > QRD_THRESHOLD)
-        {
-            motor.speed(MOTOR_RIGHT, -75);
-            motor.speed(MOTOR_LEFT, -75);
-            right = analogRead(QRD_AGENT_TAPE_RIGHT);
-        }
-    }
-    this->stop();*/
-
 }
 
 void Driver::driveStraight()

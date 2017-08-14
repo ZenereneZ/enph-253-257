@@ -167,14 +167,7 @@ void Controller::tapeFollowHill()
     }
 
     driver.stop();
-    //driver.driveBackUntilQRD();
     delay(1000);
-
-    //if(direction == Left) driver.turnLeftUntilQRDBoth();
-    //else driver.turnRightUntilQRDBoth();
-
-    //driver.stop();
-    //delay(1000);
 }
 
 /*
@@ -318,10 +311,6 @@ void Controller::freeFollow()
     }
     driver.stop();
     driver.powerBrake();
-    /*
-    if(direction == Left) driver.driveStraightUntilEdge(70, 70);
-    else driver.driveStraightUntilEdge(77, 70);
-    */
 }
 
 /*
